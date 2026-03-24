@@ -1768,10 +1768,10 @@
     ];
     const backgrounds = [
       { id: "default", type: "image", src: "simple_natural_landscape_pixel_art_background/origbig.png", label: "default" },
-      { id: "bg-gif-1", type: "gif", src: "588a44195922117.66168b374ece8.gif", label: "village" },
-      { id: "bg-gif-2", type: "gif", src: "kLSVcj.gif", label: "neon forest" },
-      { id: "bg-png-1", type: "image", src: "939716.png", label: "city sunset" },
-      { id: "bg-jpg-1", type: "image", src: "akfqd7mvcss51.jpg", label: "autumn woods" }
+      { id: "bg-gif-1", type: "gif", src: "bg-village.gif", label: "village" },
+      { id: "bg-gif-2", type: "gif", src: "bg-neon-forest.gif", label: "neon forest" },
+      { id: "bg-png-1", type: "image", src: "bg-city-sunset.png", label: "city sunset" },
+      { id: "bg-jpg-1", type: "image", src: "bg-autumn-woods.jpg", label: "autumn woods" }
     ];
     let selectedBackgroundId = "default";
     function todayKey() {
@@ -2488,7 +2488,7 @@
     function startMusicEngine() {
       stopMusicEngine();
       if (!bgAudio) {
-        bgAudio = new Audio(encodeURI("坂本龍一 - Merry Christmas Mr. Lawrence.mp3"));
+        bgAudio = new Audio(encodeURI("lofi-theme.mp3"));
         bgAudio.loop = true;
         bgAudio.volume = 0.45;
       }
