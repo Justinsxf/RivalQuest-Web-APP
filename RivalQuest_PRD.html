@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RivalQuest PRD v1.0</title>
+<title>RivalQuest PRD v1.2</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+SC:wght@400;500;700&display=swap');
 
@@ -850,7 +850,7 @@
       这不是一个普通的打卡 App——这是一场<strong>永不停止的竞争</strong>。<br>
       每一秒的拖延，都是对手赢得的经验值。
     </p>
-    <span class="version-badge">MVP PRD · v1.1 Sync · Internal</span>
+    <span class="version-badge">MVP PRD · v1.2 Sync · Internal</span>
   </div>
   <!-- Pixel Character -->
   <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
@@ -930,14 +930,18 @@
 <!-- IMPLEMENTATION SYNC SNAPSHOT -->
 <div style="max-width:1100px; margin:0 auto; padding:0 32px 20px;">
   <div class="callout success pixel-border" style="padding:18px 20px;">
-    <div class="card-title" style="margin-bottom:10px;">✅ 已实现版本同步（2026-03-24）</div>
+    <div class="card-title" style="margin-bottom:10px;">✅ 已实现版本同步（2026-03-24 · 对齐 MVP 原型）</div>
     <ul class="feature-list">
-      <li><strong>Onboarding（Step 0/1）</strong>：5 个角色选择、3 套配色、角色介绍卡与性格标签联动；已去除“预览/对手台词预览”等冗余提示词。</li>
+      <li><strong>Onboarding（Step 0/1）</strong>：5 个角色选择、3 套配色、角色介绍卡与性格标签联动；Step 标题区中英文字号与像素字体统一；已去除「预览 / 对手台词预览」等冗余提示。</li>
       <li><strong>文案展示</strong>：角色台词按中文语义短句换行（优先标点分句），避免随机断句和单行过长。</li>
       <li><strong>Dashboard 对战区</strong>：YOU vs RIVAL 像素角色主展示区、XP 进度对比与机制提示文案已落地，支持实时数值刷新。</li>
-      <li><strong>任务系统</strong>：支持新增/完成/删除任务，任务带分类与 XP；已注入 10 条 sample tasks，空任务状态下自动补齐用于 demo 展示。</li>
-      <li><strong>存档与重进</strong>：使用 localStorage 持久化（角色、任务、XP、阶段状态等），支持刷新后继续展示当前进度。</li>
-      <li><strong>音频开关</strong>：底部播放器保留播放/暂停交互，当前版本可替换本地音频文件路径。</li>
+      <li><strong>任务系统（今日待办）</strong>：支持新增 / 完成 / 删除；任务字段为 <code>id</code>、<code>text</code>、<code>xp</code>、<code>category</code>（学习 / 健身 / 健康 / 工作 / 其他）。当「今日待办」与「今日已完成」均为空时，自动注入 <strong>3 条</strong>固定 demo（学微积分 50 分钟 · 50 XP · 学习；健身 1 小时 · 80 XP · 健身；喝满 8 杯水 · 30 XP · 健康），行为与普通任务一致，不额外标注 sample。</li>
+      <li><strong>今日已完成</strong>：打卡完成的任务从待办移入 <code>completedTodayTasks</code> 归档区（可折叠）；展示名称 / XP / 分类；支持<strong>恢复</strong>回待办（同步回滚用户 XP）与<strong>删除</strong>已完成项（扣回 XP）。</li>
+      <li><strong>从便签导入</strong>：多行粘贴 → 解析为候选列表 → 每条支持勾选、编辑文案、调整 XP 与分类 →「确认批量加入」仅加入已勾选项；未勾选任何一条时提示，不静默失败；成功后清空输入与候选、自动收起面板并反馈导入数量；候选数据写入存档字段 <code>importedDraftTasks</code>，刷新可恢复未确认的草稿。</li>
+      <li><strong>背景与外观</strong>：设置内「appearance」区域提供 5 套页面背景（1 默认 + 2 GIF + 1 PNG + 1 JPEG，本地资源）；通过 <code>setBackground(bgId)</code> 切换，<code>localStorage</code> 键 <code>selectedBackground</code> 持久化，刷新保持。</li>
+      <li><strong>任务区布局</strong>：从便签导入 / TODAY TASKS / 今日已完成 三类标题栏统一横向 flex（两端对齐、垂直居中）与字号层级，与像素风面板一致。</li>
+      <li><strong>存档与重进</strong>：主存档键 <code>rivalquest-mvp-state-v1</code>，持久化角色、双方 XP、<code>tasks</code>、<code>completedTodayTasks</code>、<code>importedDraftTasks</code>、每日 <code>daily</code>、连击 <code>streakDays</code> 等；跨日重置任务后会再次在「双空」条件下注入上述 3 条 demo。</li>
+      <li><strong>音频开关</strong>：底部播放器保留播放 / 暂停交互，当前版本可替换本地音频文件路径。</li>
     </ul>
   </div>
 </div>
@@ -1339,7 +1343,7 @@
           <div class="scope-icon">📝</div>
           <div class="scope-text">
             <h4>任务管理</h4>
-            <p>创建/编辑/删除任务，设置难度（1-3星）和预计时长，手动打卡完成。每天最多 10 个任务。</p>
+            <p>创建 / 删除任务，模态框内设置难度（映射 XP：30 / 60 / 100）与分类，手动打卡完成。便签多行导入经确认后加入。空列表且当日归档也为空时自动注入 3 条 demo 任务。PRD 层「每天最多 10 个任务」为产品约束，原型可先不强制拦截。</p>
           </div>
           <span class="badge badge-p0" style="flex-shrink:0; margin-top:4px;">P0</span>
         </div>
@@ -1363,7 +1367,7 @@
           <div class="scope-icon">🖥️</div>
           <div class="scope-text">
             <h4>主界面 Dashboard</h4>
-            <p>今日任务列表；你 vs 对手 XP 对比（大数字 + 进度条）；对手当日状态和台词气泡。</p>
+            <p>今日待办列表、可折叠的「今日已完成」归档（含恢复）；你 vs 对手 XP 对比（大数字 + 进度条）；日期 / 完成进度 / 游戏天数与名言条；设置内可切换全页背景；对手区域已接原型展示逻辑（台词气泡在紧凑布局中可按实现裁剪）。</p>
           </div>
           <span class="badge badge-p0" style="flex-shrink:0; margin-top:4px;">P0</span>
         </div>
@@ -1556,7 +1560,7 @@
 </main>
 
 <footer class="footer">
-  <div>RIVALQUEST PRD v1.0 · 机密文件 · 内部使用</div>
+  <div>RIVALQUEST PRD v1.2 · 机密文件 · 内部使用 · 与 MVP 原型 HTML 同步</div>
   <div style="margin-top: 6px; color: #555;">当你在读这份文档时，你的对手已经在训练了。</div>
 </footer>
 

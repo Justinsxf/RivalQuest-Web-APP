@@ -607,24 +607,26 @@
     .task-panel {
       border: 3px solid #1c1c1c;
       background: #fff;
-      padding: 14px;
+      padding: 16px 18px;
       display: grid;
-      gap: 10px;
+      gap: 6px;
     }
     .import-panel {
-      border: 3px solid #1d1d1d;
-      background: #f9fbff;
-      padding: 10px;
+      border: none;
+      background: rgba(247, 251, 255, 0.98);
+      padding: 0;
       display: grid;
-      gap: 8px;
-      margin-bottom: 8px;
+      gap: 0;
+      margin: 0 0 6px;
+      box-shadow: inset 0 -2px 0 #2a4074;
     }
     .import-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+      gap: 12px;
+      flex-wrap: nowrap;
+      padding: 14px 0;
     }
     textarea {
       border: 3px solid #1f1f1f;
@@ -646,6 +648,25 @@
       grid-template-columns: 1.4fr 0.7fr 0.7fr;
       align-items: center;
     }
+    .import-preview-item.draft-off { opacity: 0.55; background: #f3f3f3; }
+    .import-draft-main { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; }
+    .draft-check { width: 16px; height: 16px; accent-color: #2f62d8; cursor: pointer; }
+    .draft-input { width: 100%; border: 2px solid #1f1f1f; background: #fff; font-family: inherit; font-size: 14px; line-height: 1.4; padding: 6px 8px; }
+    .draft-input:focus { outline: none; border-color: #2152c8; box-shadow: 0 0 0 2px rgba(33,82,200,0.2); }
+    .import-feedback { min-height: 18px; font-size: 12px; line-height: 1.5; color: #254f9f; }
+    .import-feedback.error { color: #b33939; }
+    .completed-panel {
+      margin-top: 6px;
+      border: none;
+      background: rgba(255, 253, 245, 0.98);
+      padding: 0;
+      display: grid;
+      gap: 0;
+      box-shadow: inset 0 -2px 0 #6f5b2f;
+    }
+    .completed-list.hidden { display: none; }
+    .task-item.completed { background: #f1fff4; border-color: #2f7a4d; }
+    .task-item.completed .task-meta { color: #2c6f45; }
 
     .task-item {
       border: 2px solid #1f1f1f;
@@ -730,6 +751,92 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    .settings-shell {
+      display: grid;
+      grid-template-columns: 140px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .settings-tabs {
+      border: 3px solid #222;
+      background: #ececec;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+    }
+    .settings-tab {
+      border: 3px solid #4b4b4b;
+      background: #f4f4f4;
+      color: #444;
+      font-family: "Press Start 2P", monospace;
+      font-size: 9px;
+      line-height: 1.45;
+      text-transform: lowercase;
+      padding: 10px 8px;
+      text-align: left;
+    }
+    .settings-tab.active {
+      border-color: #ad6c3e;
+      background: #fff;
+      color: #ad6c3e;
+      box-shadow: inset 0 0 0 2px #f5d3b7;
+    }
+    .settings-panel {
+      border: 3px solid #222;
+      background: #f8f9ff;
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+    .bg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .bg-card {
+      position: relative;
+      border: 3px solid #2a2a2a;
+      background: #fff;
+      padding: 3px;
+      box-shadow: 3px 3px 0 #111;
+      transition: transform 0.1s steps(2, end), box-shadow 0.1s steps(2, end), border-color 0.1s steps(2, end);
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .bg-card:hover {
+      transform: translate(-1px, -1px) scale(1.02);
+      border-color: #2f62d8;
+      box-shadow: 4px 4px 0 #111;
+    }
+    .bg-card.active {
+      border-color: #2f62d8;
+      box-shadow: 0 0 0 2px #8fb1ff inset, 4px 4px 0 #111;
+    }
+    .bg-thumb {
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
+      display: block;
+      image-rendering: pixelated;
+      border: 2px solid #1f1f1f;
+      background: #222;
+    }
+    .bg-selected-tag {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border: 2px solid #111;
+      background: rgba(253, 189, 84, 0.92);
+      color: #5a3200;
+      font-family: "Press Start 2P", monospace;
+      font-size: 8px;
+      line-height: 1.2;
+      padding: 5px 6px;
+      text-transform: lowercase;
+      pointer-events: none;
     }
 
     .muted { color: var(--muted); font-size: 14px; line-height: 1.6; }
@@ -955,6 +1062,7 @@
     .step-theme-rival { --accent: #E8714A; border-left-color: var(--accent); background: rgba(255, 240, 230, 0.85) !important; }
     .step-theme-ready { --accent: #6d6d6d; border-left-color: var(--accent); }
     .step-card label { display:flex; align-items:center; gap:8px; font-size: 11px; font-family: "Press Start 2P", monospace; }
+    .step-title > label { font-family: "Press Start 2P", monospace; font-size: 11px; }
     .step-dot { width: 8px; height: 8px; background: var(--accent); border: 1px solid #111; display: inline-block; }
     .step-theme-player .avatar-card.active, .step-theme-player .variant-chip.active { border-color: #4A90D9; box-shadow: 0 0 0 2px rgba(74,144,217,.28) inset; }
     .step-theme-rival label { color: #C0392B; }
@@ -1089,15 +1197,16 @@
       background: rgba(255,255,255,0.93) !important;
       border: 2px solid #223664 !important;
       box-shadow: 2px 2px 0 #111 !important;
-      padding: 10px;
+      padding: 14px 16px !important;
       margin-top: 0 !important;
-      gap: 8px;
+      gap: 6px !important;
     }
     .import-panel {
-      border: 2px solid #2a4074 !important;
-      background: #f7fbff !important;
-      margin-bottom: 2px;
-      padding: 8px;
+      border: none !important;
+      background: rgba(247, 251, 255, 0.98) !important;
+      margin-bottom: 4px !important;
+      padding: 0 !important;
+      box-shadow: inset 0 -2px 0 #2a4074 !important;
     }
     .task-item {
       border: 2px solid #1f1f1f;
@@ -1106,6 +1215,83 @@
       grid-template-columns: 1fr auto auto auto;
       gap: 8px;
     }
+
+    /* Task area (below quote): unified section bars, rhythm — does not affect dashboard top */
+    #dashboardView .task-panel {
+      margin-top: 10px !important;
+    }
+    #dashboardView .task-section-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+    }
+    #dashboardView .task-panel > .header.task-section-bar,
+    #dashboardView .completed-panel > .header.task-section-bar {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      margin: 0;
+      align-items: center !important;
+    }
+    #dashboardView .task-panel > .header.task-section-bar {
+      padding: 6px 0 10px !important;
+    }
+    #dashboardView .import-panel .import-header.task-section-bar {
+      padding: 14px 0 !important;
+    }
+    #dashboardView .completed-panel > .header.task-section-bar {
+      padding: 14px 0 !important;
+    }
+    #dashboardView .task-section-title {
+      margin: 0;
+      line-height: 1.45;
+    }
+    #dashboardView .task-section-title--import {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #2a4074;
+    }
+    #dashboardView .task-section-title--main {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #1e3260;
+    }
+    #dashboardView .task-section-title--done {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #5c3d12;
+    }
+    #dashboardView .task-section-btn {
+      padding: 8px 12px !important;
+      font-size: 10px !important;
+      flex-shrink: 0;
+    }
+    #dashboardView .import-panel .import-body {
+      padding: 0 0 14px !important;
+      gap: 10px !important;
+    }
+    #dashboardView .import-panel .import-body:not(.hidden) {
+      display: grid !important;
+    }
+    #dashboardView .completed-panel {
+      border: none !important;
+      background: rgba(255, 253, 245, 0.98) !important;
+      box-shadow: inset 0 -2px 0 #6f5b2f !important;
+      margin-top: 6px !important;
+      padding: 0 !important;
+    }
+    #dashboardView .completed-panel #completedTaskList {
+      padding: 0 0 14px !important;
+    }
+    #dashboardView .completed-panel #completedTaskList:not(.hidden) {
+      display: grid !important;
+      gap: 8px;
+    }
+
     /* Dashboard relayout - compact centered two-card layout */
     #dashboardView {
       width: min(74vw, 1040px);
@@ -1365,28 +1551,36 @@
         <div class="status-item" id="gameDayText">游戏第 1 天</div>
       </div>
       <div class="quote-bar" id="motivationBar">今天也要赢过昨天的自己。</div>
-      <div class="task-panel" style="margin-top:14px;">
+      <div class="task-panel">
         <div class="import-panel">
-          <div class="import-header">
-            <h3 class="pixel-sub" style="font-size:10px;">📋 从便签导入</h3>
-            <button class="pixel-btn" id="btnToggleImport" style="padding:6px 10px;font-size:9px;">展开</button>
+          <div class="import-header task-section-bar">
+            <h3 class="pixel-sub task-section-title task-section-title--import">📋 从便签导入</h3>
+            <button class="pixel-btn task-section-btn" id="btnToggleImport" type="button">展开</button>
           </div>
-          <div id="importBody" class="hidden" style="display:grid;gap:8px;">
+          <div id="importBody" class="hidden import-body">
             <textarea id="todoPasteInput" placeholder="把你的 todo 列表粘贴进来，每行一条任务，我来帮你整理..."></textarea>
             <div class="toolbar">
               <button class="pixel-btn btn-primary" id="btnParseImport">解析并导入</button>
             </div>
+            <div id="importFeedback" class="import-feedback"></div>
             <div id="importPreviewList" style="display:grid;gap:8px;"></div>
             <div class="toolbar hidden" id="importConfirmBar">
               <button class="pixel-btn btn-success" id="btnConfirmImport">确认批量加入</button>
             </div>
           </div>
         </div>
-        <div class="header">
-          <h3 class="pixel-sub" style="font-size:11px;">TODAY TASKS</h3>
-          <button class="pixel-btn btn-primary" id="btnAddTask">+ 添加任务</button>
+        <div class="header task-section-bar">
+          <h3 class="pixel-sub task-section-title task-section-title--main">TODAY TASKS</h3>
+          <button class="pixel-btn btn-primary task-section-btn" id="btnAddTask" type="button">+ 添加任务</button>
         </div>
         <div id="taskList"></div>
+        <div class="completed-panel">
+          <div class="header task-section-bar">
+            <h3 class="pixel-sub task-section-title task-section-title--done">🏆 今日已完成</h3>
+            <button class="pixel-btn task-section-btn" id="btnToggleCompleted" type="button">展开</button>
+          </div>
+          <div id="completedTaskList" class="completed-list hidden"></div>
+        </div>
       </div>
     </section>
   </div>
@@ -1461,8 +1655,17 @@
   </div>
 
   <div id="settingsOverlay" class="report-overlay hidden">
-    <div class="report-modal glass" style="max-width:420px;">
+    <div class="report-modal glass" style="max-width:900px;">
       <h3 class="pixel-sub" style="font-size:12px;">⚙ 设置</h3>
+      <div class="settings-shell">
+        <div class="settings-tabs">
+          <div class="settings-tab active">🎨 appearance</div>
+        </div>
+        <div class="settings-panel">
+          <h4 class="pixel-sub" style="font-size:10px;">背景切换</h4>
+          <div id="backgroundGrid" class="bg-grid"></div>
+        </div>
+      </div>
       <div class="toolbar" style="justify-content:center;">
         <button class="pixel-btn btn-primary" id="btnBackToOnboarding">返回 Onboarding 重新设置角色</button>
         <button class="pixel-btn btn-warn" id="btnResetAllArchive">重置全部存档</button>
@@ -1480,6 +1683,7 @@
 
   <script>
     const STORAGE_KEY = "rivalquest-mvp-state-v1";
+    const BACKGROUND_STORAGE_KEY = "selectedBackground";
     const RIVAL_TICK_MS = 60000;
     const ACTIVE_MINUTES = 960;
     const PLAYER_AVATAR = "volt";
@@ -1562,29 +1766,14 @@
       "今天的努力，是明天的优势。",
       "开始行动，现在就是最好的时机。"
     ];
-    const defaultTasks = [
-      { id: 1, name: "学习微积分 50 分钟", category: "学习", difficulty: 2, xp: 75, done: false },
-      { id: 2, name: "背 30 个英语单词", category: "学习", difficulty: 1, xp: 30, done: true },
-      { id: 3, name: "完成 1 套 SQL 练习题", category: "学习", difficulty: 3, xp: 100, done: false },
-      { id: 4, name: "健身房力量训练 1 小时", category: "健身", difficulty: 2, xp: 75, done: false },
-      { id: 5, name: "跑步 30 分钟", category: "健身", difficulty: 1, xp: 30, done: true },
-      { id: 6, name: "喝满 8 杯水", category: "健康", difficulty: 1, xp: 30, done: false },
-      { id: 7, name: "11:30 前上床睡觉", category: "健康", difficulty: 2, xp: 60, done: false },
-      { id: 8, name: "完成 PRD 第一版", category: "工作", difficulty: 3, xp: 100, done: false },
-      { id: 9, name: "清理并回复重要邮件", category: "工作", difficulty: 2, xp: 60, done: true },
-      { id: 10, name: "收拾房间 20 分钟", category: "其他", difficulty: 1, xp: 30, done: false }
+    const backgrounds = [
+      { id: "default", type: "image", src: "simple_natural_landscape_pixel_art_background/origbig.png", label: "default" },
+      { id: "bg-gif-1", type: "gif", src: "588a44195922117.66168b374ece8.gif", label: "village" },
+      { id: "bg-gif-2", type: "gif", src: "kLSVcj.gif", label: "neon forest" },
+      { id: "bg-png-1", type: "image", src: "939716.png", label: "city sunset" },
+      { id: "bg-jpg-1", type: "image", src: "akfqd7mvcss51.jpg", label: "autumn woods" }
     ];
-    function buildSampleTasks() {
-      const mapCat = { "学习": "study", "健身": "fitness", "健康": "health", "工作": "work", "其他": "other" };
-      return defaultTasks.map((t) => ({
-        id: `task-sample-${t.id}`,
-        text: t.name,
-        xp: t.xp,
-        done: !!t.done,
-        category: mapCat[t.category] || "other"
-      }));
-    }
-
+    let selectedBackgroundId = "default";
     function todayKey() {
       const now = new Date();
       return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
@@ -1604,8 +1793,23 @@
     function calcTaskTotalXp(tasks = []) {
       return tasks.reduce((sum, t) => sum + (Number(t.xp) || 0), 0);
     }
+    function getTodayTaskPool() {
+      return [...(state.tasks || []), ...(state.completedTodayTasks || [])];
+    }
     function genId(prefix = "id") {
       return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    }
+    function getDefaultDemoTasks() {
+      return [
+        { id: genId("task"), text: "学微积分 50 分钟", xp: 50, category: "study" },
+        { id: genId("task"), text: "健身 1 小时", xp: 80, category: "fitness" },
+        { id: genId("task"), text: "喝满 8 杯水", xp: 30, category: "health" }
+      ];
+    }
+    function ensureDefaultDemoTasks() {
+      if (!state.tasks.length && !state.completedTodayTasks.length) {
+        state.tasks = getDefaultDemoTasks();
+      }
     }
     function getAvatarDef(id) {
       return AVATARS[id] || AVATARS.blaze;
@@ -1616,6 +1820,38 @@
     }
     function ensureGameStartTime() {
       if (!state.gameStartTime) state.gameStartTime = Date.now();
+    }
+    function getBackground(bgId) {
+      return backgrounds.find((bg) => bg.id === bgId) || backgrounds[0];
+    }
+    function applyBackground(bg) {
+      if (!bg) return;
+      const encodedSrc = encodeURI(bg.src);
+      document.body.style.background = `#87ceeb url("${encodedSrc}") center center / cover no-repeat fixed`;
+    }
+    function renderBackgroundCards() {
+      const wrap = document.getElementById("backgroundGrid");
+      if (!wrap) return;
+      wrap.innerHTML = backgrounds.map((bg) => {
+        const active = bg.id === selectedBackgroundId;
+        return `
+          <button class="bg-card ${active ? "active" : ""}" data-bg-id="${bg.id}" title="${bg.label}" aria-label="切换背景 ${bg.label}">
+            <img class="bg-thumb" src="${encodeURI(bg.src)}" alt="${bg.label}">
+            ${active ? '<span class="bg-selected-tag">selected</span>' : ""}
+          </button>
+        `;
+      }).join("");
+    }
+    function setBackground(bgId, persist = true) {
+      const bg = getBackground(bgId);
+      selectedBackgroundId = bg.id;
+      applyBackground(bg);
+      renderBackgroundCards();
+      if (persist) localStorage.setItem(BACKGROUND_STORAGE_KEY, bg.id);
+    }
+    function loadBackground() {
+      const savedId = localStorage.getItem(BACKGROUND_STORAGE_KEY);
+      setBackground(savedId || "default", false);
     }
     function gameDaysElapsed() {
       if (!state.gameStartTime) return 1;
@@ -1636,7 +1872,9 @@
         userXp: 0,
         rivalXp: 0,
         rivalXpFloat: 0,
-        tasks: buildSampleTasks(),
+        tasks: [],
+        completedTodayTasks: [],
+        importedDraftTasks: [],
         lastRivalTickAt: Date.now(),
         daily: { key: todayKey(), startUserXp: 0, startRivalXp: 0, streakUpdated: false },
         streakDays: 0,
@@ -1647,6 +1885,7 @@
     let state = loadState();
     function isObj(v) { return v && typeof v === "object" && !Array.isArray(v); }
     function saveState() {
+      state.importedDraftTasks = Array.isArray(importDrafts) ? importDrafts : [];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
@@ -1662,14 +1901,34 @@
       if (!state.rival.name) state.rival.name = "NOVA";
       if (!state.rival.personality) state.rival.personality = "taunt";
       if (!Array.isArray(state.tasks)) state.tasks = [];
-      state.tasks = state.tasks.map((t) => ({
+      const mappedTasks = state.tasks.map((t) => ({
         id: t.id || genId("task"),
         text: t.text || "未命名任务",
         xp: Number(t.xp) || 30,
         done: !!t.done,
         category: t.category || "other"
       }));
-      if (!state.tasks.length) state.tasks = buildSampleTasks();
+      if (!Array.isArray(state.completedTodayTasks)) state.completedTodayTasks = [];
+      state.completedTodayTasks = state.completedTodayTasks.map((t) => ({
+        id: t.id || genId("task"),
+        text: t.text || "未命名任务",
+        xp: Number(t.xp) || 30,
+        category: t.category || "other",
+        doneAt: Number(t.doneAt) || Date.now()
+      }));
+      mappedTasks.forEach((task) => {
+        if (task.done) state.completedTodayTasks.push({ id: task.id, text: task.text, xp: task.xp, category: task.category, doneAt: Date.now() });
+      });
+      state.tasks = mappedTasks.filter((t) => !t.done).map((t) => ({ id: t.id, text: t.text, xp: t.xp, category: t.category }));
+      ensureDefaultDemoTasks();
+      if (!Array.isArray(state.importedDraftTasks)) state.importedDraftTasks = [];
+      importDrafts = state.importedDraftTasks.map((d) => ({
+        id: d.id || genId("draft"),
+        enabled: typeof d.enabled === "boolean" ? d.enabled : true,
+        text: (d.text || "").trim(),
+        xp: Number(d.xp) || 30,
+        category: d.category || "other"
+      })).filter((d) => d.text);
       if (!isObj(state.daily)) state.daily = { key: todayKey(), startUserXp: Number(state.userXp) || 0, startRivalXp: Number(state.rivalXpFloat) || 0, streakUpdated: false };
       if (typeof state.rivalXpFloat !== "number") state.rivalXpFloat = Number(state.rivalXp) || 0;
       if (typeof state.streakDays !== "number") state.streakDays = 0;
@@ -1681,16 +1940,20 @@
     function ensureDailyReset() {
       const key = todayKey();
       if (!state.daily || state.daily.key !== key) {
-        const hadTasks = state.tasks.length > 0;
-        const finished = state.tasks.filter((t) => t.done).length;
-        if (hadTasks && finished === state.tasks.length) state.streakDays += 1;
+        const total = getTodayTaskPool().length;
+        const finished = state.completedTodayTasks.length;
+        if (total > 0 && finished === total) state.streakDays += 1;
         else state.streakDays = 0;
         state.daily = { key, startUserXp: state.userXp, startRivalXp: state.rivalXpFloat, streakUpdated: true };
         state.tasks = [];
+        state.completedTodayTasks = [];
+        importDrafts = [];
+        state.importedDraftTasks = [];
+        ensureDefaultDemoTasks();
       }
     }
     function calculateRivalExpectedXpGain() {
-      const totalTaskXp = calcTaskTotalXp(state.tasks);
+      const totalTaskXp = calcTaskTotalXp(getTodayTaskPool());
       const strength = Number(state.rival.strength || 1.0);
       const dailyTarget = totalTaskXp * strength;
       const perMinute = dailyTarget / ACTIVE_MINUTES;
@@ -1819,19 +2082,45 @@
       state.tasks.forEach((task) => {
         const cat = TASK_CATEGORY[task.category] || TASK_CATEGORY.other;
         const item = document.createElement("div");
-        item.className = `task-item ${task.done ? "done" : ""}`;
+        item.className = "task-item";
         item.innerHTML = `
           <div><div class="task-text">${cat.icon} ${task.text}</div><div class="task-meta">${cat.label} · ${DIFFICULTY_MAP[task.xp] || "⭐"}</div></div>
           <div class="task-xp">+${task.xp} XP</div>
-          <button class="pixel-btn ${task.done ? "" : "btn-success"}" data-action="done" data-id="${task.id}" ${task.done ? "disabled" : ""}>${task.done ? "已完成" : "完成 ✓"}</button>
+          <button class="pixel-btn btn-success" data-action="done" data-id="${task.id}">完成 ✓</button>
           <button class="pixel-btn btn-warn" data-action="delete" data-id="${task.id}">删除 ✕</button>`;
         const doneBtn = item.querySelector('[data-action="done"]');
         const delBtn = item.querySelector('[data-action="delete"]');
-        if (!task.done) doneBtn.addEventListener("click", () => completeTask(task.id));
+        doneBtn.addEventListener("click", () => completeTask(task.id));
         delBtn.addEventListener("click", () => deleteTask(task.id));
         host.appendChild(item);
       });
+      renderCompletedTasks();
       renderStatusBar();
+    }
+    function renderCompletedTasks() {
+      const host = document.getElementById("completedTaskList");
+      if (!host) return;
+      host.innerHTML = "";
+      if (!state.completedTodayTasks.length) {
+        const empty = document.createElement("div");
+        empty.className = "muted";
+        empty.textContent = "今天还没有归档任务，先去完成第一项吧。";
+        host.appendChild(empty);
+        return;
+      }
+      state.completedTodayTasks.forEach((task) => {
+        const cat = TASK_CATEGORY[task.category] || TASK_CATEGORY.other;
+        const item = document.createElement("div");
+        item.className = "task-item completed";
+        item.innerHTML = `
+          <div><div class="task-text">${cat.icon} ${task.text}</div><div class="task-meta">${cat.label} · 已完成</div></div>
+          <div class="task-xp">+${task.xp} XP</div>
+          <button class="pixel-btn btn-primary" data-action="restore" data-id="${task.id}">恢复</button>
+          <button class="pixel-btn btn-warn" data-action="delete-completed" data-id="${task.id}">删除</button>`;
+        item.querySelector('[data-action="restore"]').addEventListener("click", () => restoreCompletedTask(task.id));
+        item.querySelector('[data-action="delete-completed"]').addEventListener("click", () => deleteCompletedTask(task.id));
+        host.appendChild(item);
+      });
     }
     function animateGain(targetId) {
       const el = document.getElementById(targetId);
@@ -1874,8 +2163,8 @@
       if (bubble) bubble.textContent = getRivalLine();
     }
     function renderStatusBar() {
-      const finished = state.tasks.filter((t) => t.done).length;
-      const total = state.tasks.length;
+      const finished = state.completedTodayTasks.length;
+      const total = state.tasks.length + state.completedTodayTasks.length;
       document.getElementById("todayDateText").textContent = formatChineseDate();
       document.getElementById("todayProgressText").textContent = `${finished} / ${total} 已完成`;
       document.getElementById("gameDayText").textContent = `游戏第 ${gameDaysElapsed()} 天`;
@@ -1924,14 +2213,16 @@
         renderOnboardingSteps();
       } else {
         document.getElementById("userAvatar").innerHTML = avatarSVGById(state.playerAvatar, state.playerColor);
-        renderRivalArea(); renderStatusBar(); renderXP(); renderTasks();
+        renderRivalArea(); renderStatusBar(); renderXP(); renderTasks(); renderImportPreview();
       }
     }
 
     function completeTask(taskId) {
-      const task = state.tasks.find((t) => t.id === taskId);
-      if (!task || task.done) return;
-      task.done = true;
+      const idx = state.tasks.findIndex((t) => t.id === taskId);
+      if (idx < 0) return;
+      const task = state.tasks[idx];
+      state.tasks.splice(idx, 1);
+      state.completedTodayTasks.unshift({ ...task, doneAt: Date.now() });
       state.userXp += task.xp;
       renderTasks();
       renderXP();
@@ -1944,11 +2235,32 @@
     function deleteTask(taskId) {
       const idx = state.tasks.findIndex((t) => t.id === taskId);
       if (idx < 0) return;
-      const task = state.tasks[idx];
-      if (task.done) state.userXp = Math.max(0, state.userXp - task.xp);
       state.tasks.splice(idx, 1);
       applyOfflineRivalGrowth();
       renderTasks(); renderXP(); saveState();
+    }
+    function restoreCompletedTask(taskId) {
+      const idx = state.completedTodayTasks.findIndex((t) => t.id === taskId);
+      if (idx < 0) return;
+      const task = state.completedTodayTasks[idx];
+      state.completedTodayTasks.splice(idx, 1);
+      state.tasks.unshift({ id: task.id, text: task.text, xp: task.xp, category: task.category });
+      state.userXp = Math.max(0, state.userXp - (Number(task.xp) || 0));
+      applyOfflineRivalGrowth();
+      renderTasks();
+      renderXP();
+      saveState();
+    }
+    function deleteCompletedTask(taskId) {
+      const idx = state.completedTodayTasks.findIndex((t) => t.id === taskId);
+      if (idx < 0) return;
+      const task = state.completedTodayTasks[idx];
+      state.completedTodayTasks.splice(idx, 1);
+      state.userXp = Math.max(0, state.userXp - (Number(task.xp) || 0));
+      applyOfflineRivalGrowth();
+      renderTasks();
+      renderXP();
+      saveState();
     }
 
     function openTaskModal() {
@@ -1963,7 +2275,7 @@
       const xp = Number(document.getElementById("taskDifficultyInput").value || 30);
       const category = document.getElementById("taskCategoryInput").value;
       if (!name) return;
-      state.tasks.push({ id: genId("task"), text: name, xp, done: false, category });
+      state.tasks.push({ id: genId("task"), text: name, xp, category });
       document.getElementById("taskNameInput").value = "";
       applyOfflineRivalGrowth();
       renderTasks(); renderXP(); saveState(); closeTaskModal();
@@ -1984,6 +2296,26 @@
       body.classList.toggle("hidden", !hidden);
       btn.textContent = hidden ? "收起" : "展开";
     }
+    function toggleCompletedPanel() {
+      const body = document.getElementById("completedTaskList");
+      const btn = document.getElementById("btnToggleCompleted");
+      const hidden = body.classList.contains("hidden");
+      body.classList.toggle("hidden", !hidden);
+      btn.textContent = hidden ? "收起" : "展开";
+    }
+    function setImportFeedback(msg, isError = false) {
+      const el = document.getElementById("importFeedback");
+      if (!el) return;
+      el.textContent = msg || "";
+      el.classList.toggle("error", !!isError);
+    }
+    function escapeAttr(value = "") {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
     function renderImportPreview() {
       const host = document.getElementById("importPreviewList");
       const bar = document.getElementById("importConfirmBar");
@@ -1991,9 +2323,12 @@
       bar.classList.toggle("hidden", importDrafts.length === 0);
       importDrafts.forEach((d, i) => {
         const item = document.createElement("div");
-        item.className = "import-preview-item";
+        item.className = `import-preview-item ${d.enabled ? "" : "draft-off"}`;
         item.innerHTML = `
-          <div>${d.text}</div>
+          <div class="import-draft-main">
+            <input class="draft-check" type="checkbox" data-kind="enabled" data-idx="${i}" ${d.enabled ? "checked" : ""}>
+            <input class="draft-input" type="text" data-kind="text" data-idx="${i}" value="${escapeAttr(d.text)}" maxlength="60">
+          </div>
           <select data-kind="xp" data-idx="${i}">
             <option value="30" ${d.xp===30?"selected":""}>⭐ 30</option>
             <option value="60" ${d.xp===60?"selected":""}>⭐⭐ 60</option>
@@ -2008,25 +2343,45 @@
           </select>`;
         host.appendChild(item);
       });
-      host.querySelectorAll("select").forEach((s) => {
-        s.addEventListener("change", (e) => {
-          const idx = Number(e.target.dataset.idx);
-          if (e.target.dataset.kind === "xp") importDrafts[idx].xp = Number(e.target.value);
-          if (e.target.dataset.kind === "cat") importDrafts[idx].category = e.target.value;
-        });
-      });
     }
     function parseImportText() {
       const raw = document.getElementById("todoPasteInput").value || "";
-      importDrafts = raw.split(/\r?\n/).map(normalizeTodoLine).filter(Boolean).map((text) => ({ text, xp: 30, category: "other" }));
+      importDrafts = raw
+        .split(/\r?\n/)
+        .map(normalizeTodoLine)
+        .filter(Boolean)
+        .map((text) => ({ id: genId("draft"), enabled: true, text, xp: 30, category: "other" }));
+      if (!importDrafts.length) {
+        setImportFeedback("没有识别到可导入任务，请至少输入一条有效内容。", true);
+        renderImportPreview();
+        saveState();
+        return;
+      }
+      setImportFeedback(`已解析 ${importDrafts.length} 条候选任务，请确认后批量加入。`);
       renderImportPreview();
+      saveState();
     }
     function confirmImportTasks() {
-      if (!importDrafts.length) return;
-      importDrafts.forEach((d) => state.tasks.push({ id: genId("task"), text: d.text, xp: d.xp, category: d.category, done: false }));
+      if (!importDrafts.length) {
+        setImportFeedback("请先解析便签内容。", true);
+        return;
+      }
+      const selected = importDrafts
+        .filter((d) => d.enabled && String(d.text || "").trim())
+        .map((d) => ({ id: genId("task"), text: d.text.trim(), xp: Number(d.xp) || 30, category: d.category || "other" }));
+      if (!selected.length) {
+        setImportFeedback("你还没有勾选任何任务，至少选择 1 条再加入。", true);
+        return;
+      }
+      selected.forEach((d) => state.tasks.push(d));
       importDrafts = [];
       document.getElementById("todoPasteInput").value = "";
       renderImportPreview();
+      setImportFeedback(`已导入 ${selected.length} 个任务。`);
+      const body = document.getElementById("importBody");
+      const btn = document.getElementById("btnToggleImport");
+      body.classList.add("hidden");
+      btn.textContent = "展开";
       applyOfflineRivalGrowth();
       renderTasks();
       renderXP();
@@ -2163,6 +2518,11 @@
       document.getElementById("btnOpenSettings").addEventListener("click", () => document.getElementById("settingsOverlay").classList.remove("hidden"));
       document.getElementById("btnCloseSettings").addEventListener("click", () => document.getElementById("settingsOverlay").classList.add("hidden"));
       document.getElementById("settingsOverlay").addEventListener("click", (e) => { if (e.target.id === "settingsOverlay") document.getElementById("settingsOverlay").classList.add("hidden"); });
+      document.getElementById("backgroundGrid").addEventListener("click", (e) => {
+        const card = e.target.closest("[data-bg-id]");
+        if (!card) return;
+        setBackground(card.dataset.bgId);
+      });
       document.getElementById("btnBackToOnboarding").addEventListener("click", () => {
         if (!window.confirm("确定返回 Onboarding 重新设置角色？")) return;
         state.onboardingDone = false;
@@ -2184,8 +2544,25 @@
       document.getElementById("btnCancelTask").addEventListener("click", closeTaskModal);
       document.getElementById("btnSaveTask").addEventListener("click", saveTaskFromModal);
       document.getElementById("btnToggleImport").addEventListener("click", toggleImportPanel);
+      document.getElementById("btnToggleCompleted").addEventListener("click", toggleCompletedPanel);
       document.getElementById("btnParseImport").addEventListener("click", parseImportText);
       document.getElementById("btnConfirmImport").addEventListener("click", confirmImportTasks);
+      document.getElementById("importPreviewList").addEventListener("change", (e) => {
+        const idx = Number(e.target.dataset.idx);
+        const kind = e.target.dataset.kind;
+        if (!Number.isInteger(idx) || !importDrafts[idx]) return;
+        if (kind === "enabled") importDrafts[idx].enabled = !!e.target.checked;
+        if (kind === "xp") importDrafts[idx].xp = Number(e.target.value) || 30;
+        if (kind === "cat") importDrafts[idx].category = e.target.value || "other";
+        saveState();
+        renderImportPreview();
+      });
+      document.getElementById("importPreviewList").addEventListener("input", (e) => {
+        const idx = Number(e.target.dataset.idx);
+        if (e.target.dataset.kind !== "text" || !Number.isInteger(idx) || !importDrafts[idx]) return;
+        importDrafts[idx].text = e.target.value.slice(0, 60);
+        saveState();
+      });
       document.getElementById("taskModalOverlay").addEventListener("click", (e) => { if (e.target.id === "taskModalOverlay") closeTaskModal(); });
       document.getElementById("reportOverlay").addEventListener("click", (e) => { if (e.target.id === "reportOverlay") closeReport(); });
       document.getElementById("archiveOverlay").addEventListener("click", (e) => { if (e.target.id === "archiveOverlay") closeArchive(); });
@@ -2217,7 +2594,7 @@
         if (!state.onboardingDone) return;
         const progressMins = getDayProgressMinutes();
         if (progressMins <= 0 || progressMins >= ACTIVE_MINUTES) { applyOfflineRivalGrowth(); renderXP(); saveState(); return; }
-        const dailyTarget = calcTaskTotalXp(state.tasks) * Number(state.rival.strength || 1.0);
+        const dailyTarget = calcTaskTotalXp(getTodayTaskPool()) * Number(state.rival.strength || 1.0);
         state.rivalXpFloat += dailyTarget / ACTIVE_MINUTES;
         state.lastRivalTickAt = Date.now();
         applyOfflineRivalGrowth();
@@ -2235,6 +2612,7 @@
         state.onboardingDone = false;
         state.onboardingStep = 0;
         bindEvents();
+        loadBackground();
         renderViews();
         saveState();
         startRivalTicker();
@@ -2244,6 +2622,7 @@
         state = loadState();
         normalizeLegacyState();
         bindEvents();
+        loadBackground();
         renderViews();
         saveState();
         startRivalTicker();
