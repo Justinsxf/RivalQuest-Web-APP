@@ -1,0 +1,2256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RivalQuest MVP Prototype</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+SC:wght@400;500;700&display=swap");
+
+    :root {
+      --bg: #f5f1e6;
+      --panel: #fffaf0;
+      --ink: #1e1d1c;
+      --muted: #5a5a5a;
+      --line: #1f1f1f;
+      --blue: #4f7cff;
+      --cyan: #39d0ff;
+      --gold: #ffb800;
+      --red: #ff4c57;
+      --green: #2ed573;
+      --purple: #8f62ff;
+      --shadow: 4px 4px 0 #000;
+      --glass-bg: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.3);
+      --text-primary: #1a1a1a;
+      --text-muted: #4a4a4a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #87ceeb;
+      color: var(--text-primary);
+      font-family: "Noto Sans SC", sans-serif;
+      min-height: 100vh;
+      padding: 28px 18px 44px;
+      position: relative;
+    }
+
+    body.theme-dark {
+      --text-primary: #f0f0f0;
+      --text-muted: #c8c8c8;
+      --glass-bg: rgba(0, 0, 0, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-gear {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 40;
+      width: 44px;
+      height: 44px;
+      border: 3px solid var(--line);
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      font-size: 20px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .onboarding-shell {
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .what-intro {
+      margin-bottom: 32px;
+    }
+
+    .what-intro h2 {
+      font-family: "Press Start 2P", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .what-intro .value-cards {
+      gap: 12px;
+    }
+
+    .what-intro .value-card {
+      min-height: 120px;
+      align-content: start;
+    }
+
+    .what-intro .value-icon { font-size: 28px; }
+    .what-intro .value-title {
+      font-size: 11px;
+      font-family: "Press Start 2P", monospace;
+    }
+    .what-intro .value-desc {
+      font-size: 15px;
+      font-family: "Noto Sans SC", sans-serif;
+    }
+
+    .what-alert {
+      font-size: 14px;
+      font-family: "Noto Sans SC", sans-serif;
+      color: #c62828;
+      margin-top: 8px;
+    }
+
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), var(--shadow);
+    }
+
+    .pixel-title {
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(22px, 3.3vw, 38px);
+      line-height: 1.25;
+      color: #1b1b1b;
+      text-shadow: 3px 3px 0 #9cb0f7;
+      letter-spacing: 1px;
+    }
+
+    .pixel-sub {
+      font-family: "Press Start 2P", monospace;
+      font-size: 12px;
+      color: #324b7a;
+      line-height: 1.55;
+    }
+
+    .panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), var(--shadow);
+      padding: 18px;
+      color: var(--text-primary);
+    }
+
+    .hidden { display: none !important; }
+
+    .pixel-btn {
+      border: 3px solid var(--line);
+      border-bottom-width: 5px;
+      background: #fff;
+      color: #1a1a1a;
+      font-family: "Press Start 2P", monospace;
+      font-size: 11px;
+      line-height: 1.35;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.12s ease, box-shadow 0.12s ease;
+      box-shadow: 3px 3px 0 #111;
+      border-radius: 0;
+    }
+
+    .pixel-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0 #111;
+      background: #f4f7ff;
+    }
+
+    .pixel-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 #111;
+    }
+
+    .btn-primary { background: #e7efff; border-color: #0f2458; color: #132d70; }
+    .btn-warn { background: #fff2f0; border-color: #712028; color: #781924; }
+    .btn-success { background: #e8fff2; border-color: #185f38; color: #145b32; }
+
+    header, .header {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+    .header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .onboarding-grid { display: grid; gap: 12px; margin-top: 16px; }
+    .onboarding-progress {
+      border: 3px solid #1d1d1d;
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .progress-track {
+      border: 3px solid #1d1d1d;
+      height: 18px;
+      background: #ececec;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, #4f7cff, #2ed573);
+      transition: width 0.3s ease;
+    }
+    .step-card {
+      border: 3px solid #1f1f1f;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      color: #304f88;
+      line-height: 1.5;
+    }
+
+    input[type="text"], select {
+      border: 3px solid var(--line);
+      background: #fff;
+      font-size: 16px;
+      padding: 10px 12px;
+      width: 100%;
+      outline: none;
+      border-radius: 0;
+    }
+
+    input[type="text"]:focus, select:focus {
+      border-color: #345cca;
+      box-shadow: inset 0 0 0 2px #c5d7ff;
+    }
+
+    .avatar-list {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(100px, 1fr));
+      gap: 10px;
+    }
+    .step1-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .avatar-detail {
+      border: 3px solid #1e1e1e;
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      min-height: 180px;
+    }
+    .avatar-detail h4 {
+      font-family: "Press Start 2P", monospace;
+      font-size: 11px;
+      color: #2b4a8b;
+      line-height: 1.5;
+    }
+    .avatar-detail p { font-size: 13px; line-height: 1.7; color: #3a3a3a; }
+    .value-intro {
+      border: 3px dashed #1d1d1d;
+      background: #fffef9;
+      padding: 12px;
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .value-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .value-card {
+      border: 3px solid #212121;
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 5px;
+    }
+    .value-icon { font-size: 18px; }
+    .value-title {
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      color: #2d477d;
+      line-height: 1.5;
+    }
+    .value-desc { font-size: 12px; color: #4a4a4a; line-height: 1.6; }
+    .value-alert {
+      color: #b02424;
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+    .variant-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(110px, 1fr));
+      gap: 8px;
+    }
+    .variant-chip {
+      border: 3px solid #2d2d2d;
+      background: #fff;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-family: "Press Start 2P", monospace;
+      font-size: 9px;
+    }
+    .variant-chip.active { border-color: #2e58c9; background: #eaf0ff; }
+    .swatch { width: 16px; height: 16px; border: 2px solid #111; }
+
+    .avatar-card {
+      border: 3px solid #313131;
+      background: #fff;
+      padding: 10px;
+      cursor: pointer;
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.1s ease;
+      box-shadow: 2px 2px 0 #111;
+    }
+
+    .avatar-card:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #111; background: #f8fbff; }
+    .avatar-card.active { border-color: #2e58c9; background: #eaf0ff; box-shadow: 0 0 0 3px #8db0ff inset; }
+
+    .avatar-name {
+      font-family: "Press Start 2P", monospace;
+      font-size: 9px;
+      color: #243e78;
+    }
+
+    .dashboard-top {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1.25fr 1fr;
+      align-items: start;
+    }
+
+    .vs-card {
+      background: linear-gradient(180deg, #fdfdfd, #f6f8ff);
+      border: 3px solid #1f1f1f;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .avatars-vs {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .small-label {
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      color: #223d73;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .rival-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .bubble-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      margin-top: 4px;
+    }
+
+    .bubble-label {
+      position: absolute;
+      top: -22px;
+      left: 0;
+      font-family: "Press Start 2P", monospace;
+      font-size: 8px;
+      padding: 4px 8px;
+      border: 2px solid #111;
+      color: #fff;
+      z-index: 2;
+    }
+
+    .bubble {
+      border: 3px solid #222;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 10px 12px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #2f2f2f;
+      margin-top: 8px;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .bubble.fade-line { opacity: 0; }
+
+    .bubble::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -11px;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 10px solid #222;
+    }
+
+    .bubble::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -8px;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 10px solid rgba(255, 255, 255, 0.92);
+      z-index: 1;
+    }
+
+    .dup-warn {
+      color: #c62828;
+      font-size: 12px;
+      font-family: "Press Start 2P", monospace;
+      line-height: 1.6;
+    }
+
+    .scene-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .scene-thumb {
+      border: 2px solid #222;
+      aspect-ratio: 4/3;
+      cursor: pointer;
+      background: #333;
+    }
+
+    .scene-thumb.active { outline: 3px solid #4f7cff; }
+
+    .music-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .music-tab {
+      font-family: "Press Start 2P", monospace;
+      font-size: 8px;
+      padding: 6px 8px;
+      border: 2px solid #222;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+    }
+
+    .music-tab.active { background: #ffb347; }
+
+    .track-list { display: grid; gap: 6px; max-height: 200px; overflow-y: auto; }
+
+    .track-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px;
+      border: 2px solid #222;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .track-row.playing { border-color: #ff8c42; }
+
+    .xp-board {
+      border: 3px solid #171717;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .xp-row {
+      display: grid;
+      grid-template-columns: 62px 1fr auto;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .xp-tag {
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .xp-track {
+      border: 3px solid #1e1e1e;
+      background: #eaeaea;
+      height: 24px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .xp-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease-out;
+      position: relative;
+    }
+
+    .xp-fill.user { background: linear-gradient(90deg, #5d84ff, #52d2ff); }
+    .xp-fill.rival { background: linear-gradient(90deg, #f1b330, #ff8c42); }
+    .xp-fill.rival.danger { background: linear-gradient(90deg, #ff4757, #ff7f50); }
+
+    .blink {
+      animation: blinkPulse 0.7s steps(2, end) infinite;
+    }
+
+    @keyframes blinkPulse {
+      0% { filter: brightness(1); }
+      50% { filter: brightness(1.35); }
+      100% { filter: brightness(1); }
+    }
+
+    .xp-num {
+      min-width: 80px;
+      text-align: right;
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      line-height: 1.45;
+      position: relative;
+    }
+
+    .xp-pop {
+      animation: xpPop 0.45s ease;
+      color: #1149c4;
+    }
+
+    @keyframes xpPop {
+      0% { transform: translateY(0) scale(1); }
+      35% { transform: translateY(-6px) scale(1.12); }
+      100% { transform: translateY(0) scale(1); }
+    }
+    .xp-gain-float {
+      position: absolute;
+      right: 0;
+      top: -8px;
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      color: #1a58dd;
+      animation: xpGainFloat 1.2s ease-out forwards;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    @keyframes xpGainFloat {
+      0% { opacity: 0; transform: translateY(0); }
+      20% { opacity: 1; transform: translateY(-8px); }
+      100% { opacity: 0; transform: translateY(-28px); }
+    }
+    .pixel-avatar.jump-celebrate svg {
+      animation: pixelJumpFrames 0.5s steps(4, end);
+    }
+    @keyframes pixelJumpFrames {
+      0% { transform: translateY(0); }
+      25% { transform: translateY(-6px); }
+      50% { transform: translateY(-12px); }
+      75% { transform: translateY(-6px); }
+      100% { transform: translateY(0); }
+    }
+
+    .task-panel {
+      border: 3px solid #1c1c1c;
+      background: #fff;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .import-panel {
+      border: 3px solid #1d1d1d;
+      background: #f9fbff;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .import-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    textarea {
+      border: 3px solid #1f1f1f;
+      background: #fff;
+      width: 100%;
+      min-height: 120px;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+    .import-preview-item {
+      border: 2px solid #222;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1.4fr 0.7fr 0.7fr;
+      align-items: center;
+    }
+
+    .task-item {
+      border: 2px solid #1f1f1f;
+      background: #fffcf4;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .task-item.done {
+      background: #ecfff4;
+      border-color: #2f7a4d;
+      opacity: 0.8;
+    }
+
+    .task-text { font-size: 15px; line-height: 1.6; }
+    .task-meta { color: #4f4f4f; font-size: 13px; }
+    .task-xp {
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      color: #1f3c86;
+    }
+
+    .report-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.36);
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .report-modal {
+      width: min(680px, 100%);
+      background: #fffef8;
+      border: 4px solid #111;
+      box-shadow: 8px 8px 0 #111;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat {
+      border: 3px solid #222;
+      background: #f8f9ff;
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .stat h4 {
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      color: #334f8c;
+      line-height: 1.45;
+    }
+
+    .stat b {
+      font-family: "Press Start 2P", monospace;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .result {
+      border: 3px solid #171717;
+      background: #fff;
+      padding: 14px;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .muted { color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .status-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .status-item {
+      border: 3px solid #1c1c1c;
+      background: #fff;
+      padding: 10px;
+      font-family: "Press Start 2P", monospace;
+      font-size: 10px;
+      line-height: 1.5;
+      color: #2d467d;
+    }
+    .quote-bar {
+      border: 3px solid #1c1c1c;
+      background: #fffdf5;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .projector {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 60;
+      width: 92px;
+      height: 102px;
+      border: 3px solid #1c1c1c;
+      background: #f8f8f8;
+      box-shadow: 4px 4px 0 #111;
+      cursor: pointer;
+      user-select: none;
+      display: grid;
+      place-items: center;
+    }
+    .projector.glow {
+      animation: projectorGlow 2s linear infinite;
+    }
+    @keyframes projectorGlow {
+      0% { box-shadow: 4px 4px 0 #111, 0 0 0 rgba(79,124,255,0.25); }
+      50% { box-shadow: 4px 4px 0 #111, 0 0 14px rgba(46,213,115,0.35); }
+      100% { box-shadow: 4px 4px 0 #111, 0 0 10px rgba(255,184,0,0.3); }
+    }
+    .projector-body {
+      width: 74px;
+      height: 68px;
+      border: 3px solid #171717;
+      background: #fff;
+      position: relative;
+      display: grid;
+      place-items: center;
+      gap: 6px;
+      padding-top: 10px;
+    }
+    .reels {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+    .reel {
+      width: 18px;
+      height: 18px;
+      border: 3px solid #212121;
+      border-radius: 50%;
+      position: relative;
+      background: #f6f6f6;
+    }
+    .reel::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 2px solid #212121;
+      border-radius: 50%;
+    }
+    .projector.playing .reel.fast { animation: reelSpin 1s linear infinite; }
+    .projector.playing .reel.slow { animation: reelSpin 1.6s linear infinite; }
+    @keyframes reelSpin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+    .projector-label {
+      font-family: "Press Start 2P", monospace;
+      font-size: 8px;
+      color: #27427a;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .antenna {
+      position: absolute;
+      right: -9px;
+      top: -16px;
+      width: 3px;
+      height: 20px;
+      background: #202020;
+      transform: rotate(18deg);
+      transform-origin: bottom center;
+    }
+    .antenna-dot {
+      position: absolute;
+      top: -4px;
+      left: -3px;
+      width: 9px;
+      height: 9px;
+      border: 2px solid #1a1a1a;
+      border-radius: 50%;
+      background: #fff;
+    }
+    .projector.playing .antenna-dot { animation: antennaBlink 0.8s steps(2, end) infinite; }
+    @keyframes antennaBlink {
+      0% { background: #fff; }
+      50% { background: #ff5959; }
+      100% { background: #fff; }
+    }
+
+    .pixel-avatar svg {
+      width: 78px;
+      height: 90px;
+      image-rendering: pixelated;
+      border: 2px solid #2d2d2d;
+      background: #fff;
+    }
+
+    /* === Visual refresh overrides === */
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --text-primary: #1a1a1a;
+      --text-muted: #3f3f3f;
+    }
+    body {
+      background: #87ceeb url("simple_natural_landscape_pixel_art_background/origbig.png") center center / cover no-repeat fixed;
+      color: #1a1a1a;
+    }
+    #bgCanvas { display: none !important; }
+    .panel, .step-card, .xp-board, .vs-card, .task-panel, .import-panel, .status-item, .quote-bar, .report-modal, .stat, .value-card, .avatar-detail, .task-item {
+      background: rgba(255,255,255,0.82) !important;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 0;
+      color: #1a1a1a;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1), 3px 3px 0 #111;
+    }
+    .wrap { gap: 0; }
+    #dashboardView {
+      width: min(80vw, 1200px);
+      margin: 20px auto 0;
+    }
+    .header.panel {
+      width: min(80vw, 1200px);
+      margin: 0 auto;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid #1d1d1d;
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+    #btnOpenReport { background: #fff4d6; border-color: #8a5a00; color: #684400; }
+    .onboarding-shell {
+      width: min(80vw, 1200px);
+      max-width: none;
+      margin: 0 auto 0;
+      padding: 0;
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+      backdrop-filter: none;
+      display: grid;
+      gap: 0;
+    }
+    #onboardingView.onboarding-shell {
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    .hero-intro {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      align-items: stretch;
+      padding: 14px 18px 14px;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-top: 0;
+      border-bottom: 2px solid #1d1d1d;
+    }
+    .hero-cards, .hero-right { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 80px; padding-top: 0; padding-bottom: 0; }
+    .hero-card, .hero-right .value-card { background: rgba(255,255,255,0.25) !important; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.4); min-height: 120px; align-content: start; padding-top: 2px; padding-bottom: 2px; }
+    .hero-right .value-icon { font-size: 24px; }
+    .hero-right .value-title { font-size: 11px; }
+    .hero-right .value-desc { font-size: 13px; line-height: 1.7; }
+    .onboarding-progress, #introWarningText { display: none !important; }
+    .step-stage, .onboarding-grid {
+      width: 100%;
+      margin: 0 auto;
+      border: none !important;
+      background: none !important;
+      backdrop-filter: none !important;
+      box-shadow: none !important;
+      border-radius: unset !important;
+    }
+    .step-stage {
+      margin-top: 50px;
+      min-width: 0;
+      margin-left: auto;
+      margin-right: auto;
+      overflow: hidden;
+      padding: 8px 0 0;
+      display: grid;
+      place-items: center;
+    }
+    .onboarding-grid { margin-top: 0; position: relative; width: 100%; justify-items: center; align-items: start; }
+    .step-card { border-left: 4px solid #909090; padding: 16px; transition: transform 0.35s ease, opacity 0.35s ease; min-height: 250px; width: min(72vw, 980px); max-width: 100%; margin: 0 auto; }
+    .step-card.hidden { display: grid !important; visibility: hidden; position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+    .step-card.enter-from-right { transform: translateX(16px); }
+    .step-card.enter-from-left { transform: translateX(-16px); }
+    .step-theme-player { --accent: #4A90D9; border-left-color: var(--accent); background: rgba(235,245,255,0.86) !important; }
+    .step-theme-rival { --accent: #E8714A; border-left-color: var(--accent); background: rgba(255, 240, 230, 0.85) !important; }
+    .step-theme-ready { --accent: #6d6d6d; border-left-color: var(--accent); }
+    .step-card label { display:flex; align-items:center; gap:8px; font-size: 11px; font-family: "Press Start 2P", monospace; }
+    .step-dot { width: 8px; height: 8px; background: var(--accent); border: 1px solid #111; display: inline-block; }
+    .step-theme-player .avatar-card.active, .step-theme-player .variant-chip.active { border-color: #4A90D9; box-shadow: 0 0 0 2px rgba(74,144,217,.28) inset; }
+    .step-theme-rival label { color: #C0392B; }
+    .step-theme-rival .avatar-card.active, .step-theme-rival .variant-chip.active { border-color: #E8714A; box-shadow: 0 0 0 2px rgba(232,113,74,.25) inset; }
+    .persona-row { font-size: 13px; line-height: 1.6; padding: 4px 8px; border-left: 3px solid var(--accent); background: rgba(255,255,255,0.55); }
+    .persona-row span { font-weight: 700; }
+    .step1-layout { grid-template-columns: 1fr 160px; align-items: stretch; }
+    .preview-box {
+      width: fit-content;
+      min-width: 0;
+      max-width: 210px;
+      min-height: unset;
+      max-height: none;
+      overflow: visible;
+      padding: 8px 10px;
+      gap: 6px;
+    }
+    .preview-box p {
+      font-size: 13px;
+      line-height: 1.65;
+      max-width: 14em;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    .variant-list { display: flex; flex-wrap: nowrap; gap: 8px; }
+    .variant-chip { flex: 1; min-width: 0; justify-content: center; }
+    .step-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .step-actions.dual { justify-content: space-between; }
+    .ready-top { display: flex; justify-content: center; align-items: center; gap: 24px; padding: 8px 0 2px; }
+    .ready-char { display: grid; gap: 6px; justify-items: center; }
+    .ready-vs { align-self: center; font-family: "Press Start 2P", monospace; font-size: 14px; color: #E85D5D; }
+    .ready-char .pixel-avatar svg, .fighter-sprite-wrap svg, .fighter .pixel-avatar svg { width: 120px !important; height: 120px !important; image-rendering: pixelated; }
+    .motto-text, .ready-quote { border: none !important; background: none !important; padding: 0 !important; text-align: center; font-size: 15px; color: #333; margin: 24px 0; line-height: 1.8; }
+    .motto-text { text-align: center; font-size: 15px; color: #333; margin: 24px 0; }
+    .fight-buttons { display: flex; justify-content: center; gap: 24px; margin-top: 16px; }
+    .step-theme-ready .step-actions, .step-theme-ready .fight-buttons { justify-content: center; gap: 24px; }
+    #btnStart { padding: 12px 22px; font-size: 12px; }
+
+    #dashboardView {
+      display: grid;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(245, 251, 255, 0.9) !important;
+      border: 2px solid #1b2a52 !important;
+      box-shadow: 4px 4px 0 #111, 0 10px 24px rgba(0,0,0,0.12) !important;
+    }
+    .dashboard-top { grid-template-columns: minmax(0, 1.45fr) minmax(320px, 1fr); align-items: stretch; gap: 10px; }
+    .vs-card, .xp-board {
+      background: rgba(255, 255, 255, 0.9) !important;
+      border: 2px solid #21345f !important;
+      border-left: 6px solid #4A90D9 !important;
+      box-shadow: 2px 2px 0 #111 !important;
+      min-height: 292px;
+    }
+    .battle-zone.vs-card { padding: 14px 16px; min-height: unset !important; }
+    .avatars-vs.battle-zone-left {
+      display: grid;
+      grid-template-columns: 220px 80px 220px;
+      align-items: end;
+      justify-content: center;
+      justify-items: center;
+      gap: 16px;
+      padding: 14px 8px 8px;
+      min-height: 230px;
+    }
+    .player-sprite svg, .rival-sprite svg, #userAvatar svg, #rivalAvatar svg { width: 100px !important; height: 100px !important; image-rendering: pixelated; }
+    .fighter-block { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 220px; }
+    .small-label { font-size: 9px; }
+    .vs-text {
+      align-self: center;
+      justify-self: center;
+      font-family: "Press Start 2P", monospace;
+      font-size: 13px;
+      color: #E85D5D;
+      position: static;
+      transform: none;
+      background: rgba(255,255,255,0.9);
+      padding: 2px 6px;
+      border: 2px solid #e5b4b4;
+      margin-bottom: 52px;
+    }
+    .avatars-vs > .small-label[style*="VS"], .avatars-vs > .vs-text { align-self: center; font-family: "Press Start 2P", monospace; color: #E85D5D !important; }
+    .rival-col { justify-content: flex-start; }
+    .bubble-wrap.speech-bubble-wrap { margin: 0 0 6px; order: -1; }
+    .bubble-label {
+      top: -20px;
+      font-size: 7px;
+      border-width: 1px;
+      background: #3f5ea9;
+    }
+    .speech-bubble, .bubble {
+      max-width: 210px;
+      width: fit-content;
+      padding: 8px 10px;
+      border: 2px solid #333;
+      background: #fff;
+      position: relative;
+      margin-top: 0;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .speech-bubble::before, .bubble::before { content: ""; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #333; }
+    .speech-bubble::after, .bubble::after { content: ""; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid #fff; }
+
+    .xp-board { padding: 12px; }
+    .xp-board .pixel-sub { color: #263f7a; margin-bottom: 2px; }
+    .xp-row { grid-template-columns: 56px 1fr auto; gap: 8px; }
+    .xp-track { height: 20px; border-width: 2px; background: #f1f1f1; }
+    .xp-num { min-width: 72px; font-size: 9px; }
+    .xp-tag { font-size: 9px; }
+    .muted { font-size: 12px; line-height: 1.65; color: #3c3c3c; margin-top: 2px; }
+
+    .status-bar { margin-bottom: 0; gap: 8px; }
+    .status-bar .status-item {
+      background: rgba(255,255,255,0.82) !important;
+      border: 2px solid #223664 !important;
+      box-shadow: 2px 2px 0 #111;
+      font-size: 9px;
+      padding: 8px 10px;
+    }
+    .quote-bar {
+      background: rgba(255, 250, 228, 0.95) !important;
+      border: 2px solid #6f5b2f !important;
+      text-align: center;
+      font-style: italic;
+      font-size: 13px;
+      padding: 8px 10px;
+      margin-bottom: 2px;
+    }
+    .task-panel {
+      background: rgba(255,255,255,0.93) !important;
+      border: 2px solid #223664 !important;
+      box-shadow: 2px 2px 0 #111 !important;
+      padding: 10px;
+      margin-top: 0 !important;
+      gap: 8px;
+    }
+    .import-panel {
+      border: 2px solid #2a4074 !important;
+      background: #f7fbff !important;
+      margin-bottom: 2px;
+      padding: 8px;
+    }
+    .task-item {
+      border: 2px solid #1f1f1f;
+      box-shadow: 2px 2px 0 #111;
+      padding: 8px 10px;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 8px;
+    }
+    /* Dashboard relayout - compact centered two-card layout */
+    #dashboardView {
+      width: min(74vw, 1040px);
+      margin: 20px auto 0;
+      gap: 10px;
+      padding: 10px;
+    }
+    .dashboard-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+    .vs-card, .xp-board {
+      min-height: 224px;
+    }
+    .battle-zone.vs-card {
+      padding: 10px 12px;
+      min-height: 224px !important;
+    }
+    .battle-layout {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 6px 8px;
+    }
+    .fighter-col {
+      width: 156px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 0;
+    }
+    .player-sprite svg, .rival-sprite svg, #userAvatar svg, #rivalAvatar svg {
+      width: 132px !important;
+      height: 132px !important;
+      image-rendering: pixelated;
+    }
+    .vs-core {
+      font-family: "Press Start 2P", monospace;
+      font-size: 14px;
+      color: #E85D5D;
+      border: 2px solid #f0c4c4;
+      background: #fff;
+      padding: 4px 10px;
+      margin: 0;
+    }
+    .speech-bubble-wrap, .bubble-wrap, .bubble-label, .speech-bubble, .bubble { display: none !important; }
+
+    .xp-board {
+      min-height: 224px;
+      padding: 10px;
+      gap: 8px;
+    }
+    .xp-board .pixel-sub { margin-bottom: 0; }
+    .xp-row {
+      grid-template-columns: 48px 1fr auto;
+      align-items: center;
+      gap: 6px;
+    }
+    .xp-track {
+      height: 16px;
+      border-width: 2px;
+    }
+    .xp-tag { font-size: 9px; }
+    .xp-num {
+      min-width: 56px;
+      font-size: 10px;
+      line-height: 1.2;
+    }
+    .muted {
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 0;
+    }
+    .projector { position: fixed; right: 18px; bottom: 18px; z-index: 60; width: 118px; height: 56px; border: 3px solid #1e1e1e; background: rgba(255,255,255,0.9); display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 3px 3px 0 #111; color: #1f3d79; font-family: "Press Start 2P", monospace; font-size: 8px; padding: 6px; }
+    .projector.playing { color: #2f7d3b; border-color: #2f7d3b; }
+    .projector-body, .reels, .antenna { display: none !important; }
+    .radio-icon { font-size: 16px; line-height: 1; }
+    @media (max-width: 980px) {
+      .header.panel, .onboarding-shell, #dashboardView { width: min(94vw, 1200px); margin-top: 0; margin-left: auto; margin-right: auto; }
+      .onboarding-shell { gap: 0; }
+      .hero-intro { grid-template-columns: 1fr; }
+      .hero-right { grid-template-columns: 1fr; }
+      .step-stage { width: 100%; min-width: 0; padding: 0; }
+      .step1-layout { grid-template-columns: 1fr; }
+      .preview-box { width: fit-content; max-width: 210px; }
+      .dashboard-top, .report-grid, .status-bar { grid-template-columns: 1fr; }
+      .battle-layout { grid-template-columns: 1fr; gap: 10px; justify-items: center; align-items: center; }
+      .fighter-col { width: 100%; }
+      .vs-core { margin: 0; }
+      .fighter-rival .speech-bubble, .fighter-rival .bubble { white-space: normal; }
+      .avatar-list, .value-cards, .hero-cards { grid-template-columns: 1fr; }
+      .xp-row { grid-template-columns: 60px 1fr; }
+      .xp-num { grid-column: 2; text-align: left; }
+      .import-preview-item { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <div class="wrap">
+    <header class="header panel">
+      <div>
+        <h1 class="pixel-title">RIVAL QUEST</h1>
+      </div>
+      <div class="toolbar">
+        <button class="pixel-btn btn-primary hidden" id="btnArchive">📁 存档</button>
+        <button class="pixel-btn btn-primary" id="btnManualSave">💾 保存</button>
+        <button class="pixel-btn btn-primary" id="btnOpenSettings">⚙ 设置</button>
+        <button class="pixel-btn btn-primary" id="btnOpenReport">查看日终战报</button>
+      </div>
+    </header>
+
+    <section id="onboardingView" class="panel onboarding-shell">
+      <div class="hero-intro">
+        <div class="hero-right hero-cards value-cards">
+          <div class="value-card hero-card">
+            <div class="value-icon">📋</div>
+            <div class="value-title">设定任务</div>
+            <div class="value-desc">写下今天要完成的事，并快速排序优先级</div>
+          </div>
+          <div class="value-card hero-card">
+            <div class="value-icon">⚡</div>
+            <div class="value-title">完成得 XP</div>
+            <div class="value-desc">每完成一项，你都会拿到清晰可见的成长</div>
+          </div>
+          <div class="value-card hero-card">
+            <div class="value-icon">😈</div>
+            <div class="value-title">对手不等你</div>
+            <div class="value-desc">行动越快，你和对手的差距越容易拉开</div>
+          </div>
+        </div>
+      </div>
+      <div class="step-stage" id="stepStage" data-step="0">
+        <div class="onboarding-grid">
+          <div class="step-card step-theme-player step0" id="step0Card">
+            <div class="step-title"><label><span class="step-dot"></span>STEP 0 · 选择你的角色</label></div>
+            <div class="character-row step1-layout">
+              <div class="character-grid">
+                <div class="avatar-list" id="playerAvatarList"></div>
+              </div>
+              <div class="character-preview avatar-detail preview-box">
+                <h4 id="playerDetailName">—</h4>
+                <p id="playerDetailTag">性格标签：—</p>
+                <p id="playerDetailLine">—</p>
+              </div>
+            </div>
+            <div class="personality-row persona-row">当前性格：<span class="personality-tag" id="playerPersonaTagInline">—</span></div>
+            <div class="color-row hidden" id="playerVariantWrap" style="margin-top:10px;">
+              <label>配色（3 种）</label>
+              <div class="variant-list" id="playerVariantList"></div>
+            </div>
+            <button type="button" class="pixel-btn btn-primary btn-next" id="btnStep0Next">下一步</button>
+          </div>
+          <div class="step-card step-theme-rival step1 hidden" id="step1Card">
+            <div class="step-title"><label><span class="step-dot"></span>STEP 1 · 设定你的对手</label></div>
+            <div class="character-row step1-layout">
+              <div class="character-grid">
+                <div class="avatar-list" id="rivalAvatarList"></div>
+              </div>
+              <div class="character-preview avatar-detail preview-box">
+                <h4 id="rivalDetailName">—</h4>
+                <p id="rivalDetailTag">性格标签：—</p>
+                <p id="rivalDetailLine">—</p>
+              </div>
+            </div>
+            <div class="personality-row persona-row">当前性格：<span class="personality-tag" id="rivalPersonaTagInline">—</span></div>
+            <div class="color-row hidden" id="rivalVariantWrap" style="margin-top:10px;">
+              <label>配色（3 种）</label>
+              <div class="variant-list" id="rivalVariantList"></div>
+            </div>
+            <div class="field">
+              <label>给你的对手起个名字</label>
+              <input id="rivalNameInput" type="text" maxlength="12" placeholder="例如：NOVA">
+            </div>
+            <div class="field">
+              <label>对手强度 😴 懒散 → 😈 疯狂 <span id="strengthLabel">1.0x</span></label>
+              <input id="strengthInput" type="range" min="0.6" max="1.2" step="0.1" value="1.0">
+            </div>
+            <div class="step-actions dual fight-buttons">
+              <button type="button" class="pixel-btn btn-prev" id="btnStep1Prev">上一步</button>
+              <button type="button" class="pixel-btn btn-success" id="btnStep1Next">下一步</button>
+            </div>
+          </div>
+          <div class="step-card step-theme-ready step-final hidden" id="step2Card">
+            <div class="step-title"><label><span class="step-dot"></span>READY TO FIGHT?</label></div>
+            <div class="fight-preview ready-top">
+              <div class="fighter ready-char left">
+                <div class="pixel-avatar fighter-sprite-wrap" id="readyPlayerAvatar"></div>
+                <div class="fighter-name small-label">YOU</div>
+              </div>
+              <div class="fight-vs ready-vs">VS</div>
+              <div class="fighter ready-char right">
+                <div class="pixel-avatar fighter-sprite-wrap" id="readyRivalAvatar"></div>
+                <div class="fighter-name small-label" id="readyRivalName">RIVAL</div>
+              </div>
+            </div>
+            <div class="motto-text ready-quote" id="readyQuoteText">「今天的努力，是明天的优势。」</div>
+            <input id="motivationInput" type="hidden" value="每一次完成，都是对懈怠的胜利。">
+            <p class="dup-warn hidden" id="duplicateWarn">你与对手不能选择完全相同的角色与配色。</p>
+            <div class="fight-buttons step-actions dual">
+              <button type="button" class="pixel-btn btn-prev" id="btnStep2Prev">上一步</button>
+              <button class="pixel-btn btn-success btn-start" id="btnStart" disabled>开始对战 ⚔️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboardView" class="panel hidden">
+      <div class="dashboard-top">
+        <div class="vs-card battle-zone">
+          <div class="battle-layout">
+            <div class="fighter-col fighter-you">
+              <div class="pixel-avatar player-sprite" id="userAvatar"></div>
+              <div class="small-label">YOU</div>
+            </div>
+
+            <div class="vs-core">VS</div>
+
+            <div class="fighter-col fighter-rival">
+              <div class="pixel-avatar rival-sprite" id="rivalAvatar"></div>
+              <div class="small-label" id="rivalNameLabel">NOVA</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="xp-board">
+          <div class="pixel-sub" style="font-size:11px;">TODAY XP TRACK</div>
+          <div class="xp-row">
+            <div class="xp-tag" style="color:#2152c8;">YOU</div>
+            <div class="xp-track">
+              <div class="xp-fill user" id="userXpFill"></div>
+            </div>
+            <div class="xp-num" id="userXpNum">0 XP</div>
+          </div>
+          <div class="xp-row">
+            <div class="xp-tag" style="color:#a64508;">RIVAL</div>
+            <div class="xp-track">
+              <div class="xp-fill rival" id="rivalXpFill"></div>
+            </div>
+            <div class="xp-num" id="rivalXpNum">0 XP</div>
+          </div>
+          <p class="muted">你行动时会持续成长；停下时对手也会悄悄追上来。<br>若对手领先，进度条会变红提醒你。</p>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="status-item" id="todayDateText">--</div>
+        <div class="status-item" id="todayProgressText">0 / 0 已完成</div>
+        <div class="status-item" id="gameDayText">游戏第 1 天</div>
+      </div>
+      <div class="quote-bar" id="motivationBar">今天也要赢过昨天的自己。</div>
+      <div class="task-panel" style="margin-top:14px;">
+        <div class="import-panel">
+          <div class="import-header">
+            <h3 class="pixel-sub" style="font-size:10px;">📋 从便签导入</h3>
+            <button class="pixel-btn" id="btnToggleImport" style="padding:6px 10px;font-size:9px;">展开</button>
+          </div>
+          <div id="importBody" class="hidden" style="display:grid;gap:8px;">
+            <textarea id="todoPasteInput" placeholder="把你的 todo 列表粘贴进来，每行一条任务，我来帮你整理..."></textarea>
+            <div class="toolbar">
+              <button class="pixel-btn btn-primary" id="btnParseImport">解析并导入</button>
+            </div>
+            <div id="importPreviewList" style="display:grid;gap:8px;"></div>
+            <div class="toolbar hidden" id="importConfirmBar">
+              <button class="pixel-btn btn-success" id="btnConfirmImport">确认批量加入</button>
+            </div>
+          </div>
+        </div>
+        <div class="header">
+          <h3 class="pixel-sub" style="font-size:11px;">TODAY TASKS</h3>
+          <button class="pixel-btn btn-primary" id="btnAddTask">+ 添加任务</button>
+        </div>
+        <div id="taskList"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="taskModalOverlay" class="report-overlay hidden">
+    <div class="report-modal" style="max-width:560px;">
+      <h3 class="pixel-sub" style="font-size:13px;">添加任务</h3>
+      <div class="field">
+        <label>任务名称</label>
+        <input id="taskNameInput" type="text" maxlength="40" placeholder="输入今天要完成的任务">
+      </div>
+      <div class="field">
+        <label>难度（XP）</label>
+        <select id="taskDifficultyInput">
+          <option value="30">⭐ 简单（30 XP）</option>
+          <option value="60">⭐⭐ 中等（60 XP）</option>
+          <option value="100">⭐⭐⭐ 困难（100 XP）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>分类</label>
+        <select id="taskCategoryInput">
+          <option value="study">学习 📚</option>
+          <option value="fitness">健身 💪</option>
+          <option value="health">健康 🥗</option>
+          <option value="work">工作 💼</option>
+          <option value="other">其他 ⚡</option>
+        </select>
+      </div>
+      <div class="toolbar">
+        <button class="pixel-btn btn-success" id="btnSaveTask">保存任务</button>
+        <button class="pixel-btn" id="btnCancelTask">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reportOverlay" class="report-overlay hidden">
+    <div class="report-modal glass">
+      <h3 class="pixel-sub" style="font-size:14px;">对战统计</h3>
+      <div class="report-grid">
+        <div class="stat">
+          <h4>你的累计 XP</h4>
+          <b id="reportUserGain">0 XP</b>
+        </div>
+        <div class="stat">
+          <h4>对手累计 XP</h4>
+          <b id="reportRivalGain">0 XP</b>
+        </div>
+      </div>
+      <div class="result" id="reportResult"></div>
+      <div class="toolbar">
+        <button class="pixel-btn btn-success" id="btnCloseReport">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="archiveOverlay" class="report-overlay hidden">
+    <div class="report-modal glass" style="max-width:420px;">
+      <h3 class="pixel-sub" style="font-size:12px;">📁 存档</h3>
+      <div style="display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap;">
+        <div style="text-align:center;"><div class="pixel-avatar" id="archivePlayerAv"></div><div class="small-label">YOU</div></div>
+        <div class="small-label">VS</div>
+        <div style="text-align:center;"><div class="pixel-avatar" id="archiveRivalAv"></div><div class="small-label" id="archiveRivalName">RIVAL</div></div>
+      </div>
+      <div class="stat"><h4>双方 XP</h4><b id="archiveXpLine">你 0 · 对手 0</b></div>
+      <div class="stat"><h4>游戏进行天数</h4><b id="archiveDays">1 天</b></div>
+      <div class="toolbar">
+        <button class="pixel-btn btn-success" id="btnArchiveContinue">▶ 继续</button>
+        <button class="pixel-btn btn-warn" id="btnArchiveNew">＋ 新建存档</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsOverlay" class="report-overlay hidden">
+    <div class="report-modal glass" style="max-width:420px;">
+      <h3 class="pixel-sub" style="font-size:12px;">⚙ 设置</h3>
+      <div class="toolbar" style="justify-content:center;">
+        <button class="pixel-btn btn-primary" id="btnBackToOnboarding">返回 Onboarding 重新设置角色</button>
+        <button class="pixel-btn btn-warn" id="btnResetAllArchive">重置全部存档</button>
+      </div>
+      <div class="toolbar" style="justify-content:center;">
+        <button class="pixel-btn" id="btnCloseSettings">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="projector" id="projectorPlayer" aria-label="toggle-music">
+    <span class="radio-icon">📻</span>
+    <span class="projector-label" id="projectorLabel">播放 Lo-Fi</span>
+  </button>
+
+  <script>
+    const STORAGE_KEY = "rivalquest-mvp-state-v1";
+    const RIVAL_TICK_MS = 60000;
+    const ACTIVE_MINUTES = 960;
+    const PLAYER_AVATAR = "volt";
+    const TASK_CATEGORY = {
+      study: { icon: "📚", label: "学习" },
+      fitness: { icon: "💪", label: "健身" },
+      health: { icon: "🥗", label: "健康" },
+      work: { icon: "💼", label: "工作" },
+      other: { icon: "⚡", label: "其他" }
+    };
+    const DIFFICULTY_MAP = { 30: "⭐", 60: "⭐⭐", 100: "⭐⭐⭐" };
+    const AVATARS = {
+      blaze: {
+        label: "BLAZE 🔥",
+        tag: "热血型",
+        preview: "今天你要是不冲，我就直接领跑。",
+        variants: [
+          { id: "ember", label: "余烬", p: "#ff8c42", s: "#ff3d3d", a: "#5d2e1f" },
+          { id: "sun", label: "炽阳", p: "#ffb347", s: "#ff5c3a", a: "#6f321f" },
+          { id: "inferno", label: "烈焰", p: "#ff6f3c", s: "#d7263d", a: "#4a1f19" }
+        ]
+      },
+      frost: {
+        label: "FROST 🧊",
+        tag: "冷静型",
+        preview: "节奏才是王道，我会稳定追赶你。",
+        variants: [
+          { id: "snow", label: "雪原", p: "#f6fbff", s: "#7ec8ff", a: "#20252d" },
+          { id: "ice", label: "冰晶", p: "#eaf7ff", s: "#5db2ff", a: "#1f2a34" },
+          { id: "glacier", label: "冰川", p: "#dff3ff", s: "#3f97ff", a: "#18222f" }
+        ]
+      },
+      volt: {
+        label: "VOLT ⚡",
+        tag: "急躁型",
+        preview: "慢一点都不行！现在就做下一项。",
+        variants: [
+          { id: "spark", label: "电火花", p: "#ffd43b", s: "#ff5f5f", a: "#5f4b1b" },
+          { id: "storm", label: "雷暴", p: "#ffe066", s: "#ff4040", a: "#6b531f" },
+          { id: "flash", label: "闪电", p: "#ffcf33", s: "#d93838", a: "#493a16" }
+        ]
+      },
+      shade: {
+        label: "SHADE 🌙",
+        tag: "嘲讽型",
+        preview: "你停一下，我就笑着超过你。",
+        variants: [
+          { id: "midnight", label: "午夜", p: "#101010", s: "#9b5de5", a: "#2a2a2a" },
+          { id: "void", label: "虚空", p: "#0f1118", s: "#b56bff", a: "#31333f" },
+          { id: "dusk", label: "薄暮", p: "#1a1b23", s: "#8f4bff", a: "#3a3d4a" }
+        ]
+      },
+      sage: {
+        label: "SAGE 🌿",
+        tag: "激励型",
+        preview: "继续坚持，我会逼你变得更强。",
+        variants: [
+          { id: "forest", label: "林野", p: "#6bcf63", s: "#8b5e34", a: "#2f6b2f" },
+          { id: "moss", label: "苔绿", p: "#5abf5a", s: "#7b5230", a: "#275f2a" },
+          { id: "grove", label: "树荫", p: "#7ad66f", s: "#9b6a3f", a: "#356f34" }
+        ]
+      }
+    };
+    const LINES = {
+      taunt: ["你慢一秒，我就多一分。", "你不动，我升级。", "今天你会被我反超。"],
+      silent: ["......", "进度条不会说谎。", "我只做一件事：稳定增长。"],
+      coach: ["保持节奏，你还能反超我。", "别怕难题，先做下一项。", "继续执行，优势会回来。"],
+      data: ["当前差值已更新。", "你的增长率下降。", "胜负由累计 XP 决定。"]
+    };
+    let importDrafts = [];
+    let bgAudio = null;
+    let musicPlaying = false;
+    let bgPhase = 0;
+    let bgSpeed = 1;
+    let clouds = [];
+    let slideDir = 1;
+    const READY_QUOTES = [
+      "每一次完成，都是对懈怠的胜利。",
+      "你的对手不会等你。",
+      "今天的努力，是明天的优势。",
+      "开始行动，现在就是最好的时机。"
+    ];
+    const defaultTasks = [
+      { id: 1, name: "学习微积分 50 分钟", category: "学习", difficulty: 2, xp: 75, done: false },
+      { id: 2, name: "背 30 个英语单词", category: "学习", difficulty: 1, xp: 30, done: true },
+      { id: 3, name: "完成 1 套 SQL 练习题", category: "学习", difficulty: 3, xp: 100, done: false },
+      { id: 4, name: "健身房力量训练 1 小时", category: "健身", difficulty: 2, xp: 75, done: false },
+      { id: 5, name: "跑步 30 分钟", category: "健身", difficulty: 1, xp: 30, done: true },
+      { id: 6, name: "喝满 8 杯水", category: "健康", difficulty: 1, xp: 30, done: false },
+      { id: 7, name: "11:30 前上床睡觉", category: "健康", difficulty: 2, xp: 60, done: false },
+      { id: 8, name: "完成 PRD 第一版", category: "工作", difficulty: 3, xp: 100, done: false },
+      { id: 9, name: "清理并回复重要邮件", category: "工作", difficulty: 2, xp: 60, done: true },
+      { id: 10, name: "收拾房间 20 分钟", category: "其他", difficulty: 1, xp: 30, done: false }
+    ];
+    function buildSampleTasks() {
+      const mapCat = { "学习": "study", "健身": "fitness", "健康": "health", "工作": "work", "其他": "other" };
+      return defaultTasks.map((t) => ({
+        id: `task-sample-${t.id}`,
+        text: t.name,
+        xp: t.xp,
+        done: !!t.done,
+        category: mapCat[t.category] || "other"
+      }));
+    }
+
+    function todayKey() {
+      const now = new Date();
+      return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+    }
+    function formatChineseDate(d = new Date()) {
+      const week = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+      return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${week[d.getDay()]}`;
+    }
+    function getDayProgressMinutes(now = new Date()) {
+      const mins = now.getHours() * 60 + now.getMinutes();
+      const start = 8 * 60;
+      const end = 24 * 60;
+      if (mins <= start) return 0;
+      if (mins >= end) return ACTIVE_MINUTES;
+      return mins - start;
+    }
+    function calcTaskTotalXp(tasks = []) {
+      return tasks.reduce((sum, t) => sum + (Number(t.xp) || 0), 0);
+    }
+    function genId(prefix = "id") {
+      return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    }
+    function getAvatarDef(id) {
+      return AVATARS[id] || AVATARS.blaze;
+    }
+    function getVariant(id, variantId) {
+      const avatar = getAvatarDef(id);
+      return avatar.variants.find((v) => v.id === variantId) || avatar.variants[0];
+    }
+    function ensureGameStartTime() {
+      if (!state.gameStartTime) state.gameStartTime = Date.now();
+    }
+    function gameDaysElapsed() {
+      if (!state.gameStartTime) return 1;
+      const days = Math.floor((Date.now() - state.gameStartTime) / 86400000) + 1;
+      return Math.max(1, days);
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return {
+        onboardingDone: false,
+        playerAvatar: "volt",
+        playerColor: "spark",
+        rival: { name: "NOVA", personality: "taunt", avatar: "blaze", variant: "ember", strength: 1.0, strengthTouched: false },
+        userXp: 0,
+        rivalXp: 0,
+        rivalXpFloat: 0,
+        tasks: buildSampleTasks(),
+        lastRivalTickAt: Date.now(),
+        daily: { key: todayKey(), startUserXp: 0, startRivalXp: 0, streakUpdated: false },
+        streakDays: 0,
+        onboardingStep: 0,
+        motivationQuote: "今天也要赢过昨天的自己。"
+      };
+    }
+    let state = loadState();
+    function isObj(v) { return v && typeof v === "object" && !Array.isArray(v); }
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function normalizeLegacyState() {
+      if (!isObj(state)) state = loadState();
+      if (!isObj(state.rival)) state.rival = {};
+      if (!state.playerAvatar || !AVATARS[state.playerAvatar]) state.playerAvatar = "volt";
+      state.playerColor = getVariant(state.playerAvatar, state.playerColor).id;
+      if (!AVATARS[state.rival.avatar]) state.rival.avatar = "blaze";
+      state.rival.variant = getVariant(state.rival.avatar, state.rival.variant).id;
+      if (typeof state.rival.strength !== "number") state.rival.strength = 1.0;
+      if (typeof state.rival.strengthTouched !== "boolean") state.rival.strengthTouched = false;
+      if (!state.rival.name) state.rival.name = "NOVA";
+      if (!state.rival.personality) state.rival.personality = "taunt";
+      if (!Array.isArray(state.tasks)) state.tasks = [];
+      state.tasks = state.tasks.map((t) => ({
+        id: t.id || genId("task"),
+        text: t.text || "未命名任务",
+        xp: Number(t.xp) || 30,
+        done: !!t.done,
+        category: t.category || "other"
+      }));
+      if (!state.tasks.length) state.tasks = buildSampleTasks();
+      if (!isObj(state.daily)) state.daily = { key: todayKey(), startUserXp: Number(state.userXp) || 0, startRivalXp: Number(state.rivalXpFloat) || 0, streakUpdated: false };
+      if (typeof state.rivalXpFloat !== "number") state.rivalXpFloat = Number(state.rivalXp) || 0;
+      if (typeof state.streakDays !== "number") state.streakDays = 0;
+      if (!state.motivationQuote) state.motivationQuote = "今天也要赢过昨天的自己。";
+      if (typeof state.onboardingStep !== "number") state.onboardingStep = 1;
+      if (!state.daily) state.daily = { key: todayKey(), startUserXp: state.userXp || 0, startRivalXp: state.rivalXpFloat || 0, streakUpdated: false };
+      if (typeof state.daily.streakUpdated !== "boolean") state.daily.streakUpdated = false;
+    }
+    function ensureDailyReset() {
+      const key = todayKey();
+      if (!state.daily || state.daily.key !== key) {
+        const hadTasks = state.tasks.length > 0;
+        const finished = state.tasks.filter((t) => t.done).length;
+        if (hadTasks && finished === state.tasks.length) state.streakDays += 1;
+        else state.streakDays = 0;
+        state.daily = { key, startUserXp: state.userXp, startRivalXp: state.rivalXpFloat, streakUpdated: true };
+        state.tasks = [];
+      }
+    }
+    function calculateRivalExpectedXpGain() {
+      const totalTaskXp = calcTaskTotalXp(state.tasks);
+      const strength = Number(state.rival.strength || 1.0);
+      const dailyTarget = totalTaskXp * strength;
+      const perMinute = dailyTarget / ACTIVE_MINUTES;
+      return perMinute * getDayProgressMinutes();
+    }
+    function applyOfflineRivalGrowth() {
+      const expectedGain = calculateRivalExpectedXpGain();
+      const currentGain = state.rivalXpFloat - state.daily.startRivalXp;
+      if (expectedGain > currentGain) state.rivalXpFloat = state.daily.startRivalXp + expectedGain;
+      state.rivalXp = Math.floor(state.rivalXpFloat);
+      state.lastRivalTickAt = Date.now();
+    }
+
+    function avatarSVGById(id, variantId) {
+      const def = getAvatarDef(id);
+      const v = getVariant(id, variantId);
+      const px = [];
+      const add = (x, y, w, h, c) => px.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`);
+      if (id === "blaze") {
+        add(4,2,2,2,v.s); add(10,2,2,2,v.s); add(5,4,6,6,v.p); add(4,6,8,5,v.p); add(3,8,10,4,v.p); add(2,11,5,2,v.s); add(1,12,7,2,v.s); add(8,10,4,2,v.a); add(10,11,4,3,v.s); add(6,6,1,1,"#ff9f1c"); add(9,6,1,1,"#ff9f1c"); add(6,8,4,1,v.a);
+      } else if (id === "frost") {
+        add(4,2,3,2,v.s); add(9,2,3,2,v.s); add(3,4,10,8,v.p); add(2,7,12,6,v.p); add(4,13,3,2,v.a); add(9,13,3,2,v.a); add(6,6,1,1,v.a); add(9,6,1,1,v.a); add(6,7,1,1,"#111"); add(9,7,1,1,"#111");
+      } else if (id === "volt") {
+        add(4,2,8,8,v.p); add(3,5,1,4,v.p); add(12,5,1,4,v.p); add(5,10,6,4,v.p); add(6,13,2,2,v.a); add(9,13,2,2,v.a); add(6,5,1,1,"#222"); add(9,5,1,1,"#222"); add(5,7,2,2,v.s); add(9,7,2,2,v.s); add(12,9,2,1,v.a); add(13,10,2,1,v.a); add(11,11,2,1,v.a);
+      } else if (id === "shade") {
+        add(4,2,2,2,v.a); add(10,2,2,2,v.a); add(4,4,8,7,v.p); add(3,7,10,5,v.p); add(4,12,3,3,v.a); add(9,12,3,3,v.a); add(6,6,1,1,v.s); add(9,6,1,1,v.s); add(6,9,4,1,"#1f1f1f");
+      } else if (id === "sage") {
+        add(4,3,8,6,v.p); add(3,5,10,6,v.p); add(4,4,8,4,v.a); add(5,8,6,5,v.p); add(3,11,2,3,v.s); add(11,11,2,3,v.s); add(6,6,1,1,"#2a2a2a"); add(9,6,1,1,"#2a2a2a"); add(7,1,2,2,"#5abf5a"); add(8,0,1,1,"#7ad66f");
+      }
+      return `<svg viewBox="0 0 16 16" aria-label="${def.label}">${px.join("")}</svg>`;
+    }
+    function isDuplicateCharacter() {
+      return state.playerAvatar === state.rival.avatar && state.playerColor === state.rival.variant;
+    }
+    function updateDuplicateUI() {
+      const warn = document.getElementById("duplicateWarn");
+      const btn = document.getElementById("btnStart");
+      const dup = isDuplicateCharacter();
+      if (warn) warn.classList.toggle("hidden", !dup);
+      if (btn) btn.disabled = dup;
+    }
+    function setReadyQuote() {
+      const quote = READY_QUOTES[Math.floor(Math.random() * READY_QUOTES.length)];
+      const quoteEl = document.getElementById("readyQuoteText");
+      const input = document.getElementById("motivationInput");
+      if (quoteEl) quoteEl.textContent = `「${quote}」`;
+      if (input) input.value = quote;
+    }
+    function formatDialogueText(text = "") {
+      const cleaned = String(text).trim();
+      if (!cleaned) return "—";
+      const parts = cleaned
+        .split(/(?<=[，。！？；])/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!parts.length) return cleaned;
+      return parts.join("<br>");
+    }
+    function renderAvatarDetail(kind) {
+      const isPlayer = kind === "player";
+      const aid = isPlayer ? state.playerAvatar : state.rival.avatar;
+      const def = getAvatarDef(aid);
+      document.getElementById(isPlayer ? "playerDetailName" : "rivalDetailName").textContent = def.label;
+      document.getElementById(isPlayer ? "playerDetailTag" : "rivalDetailTag").textContent = `性格标签：${def.tag}`;
+      document.getElementById(isPlayer ? "playerDetailLine" : "rivalDetailLine").innerHTML = formatDialogueText(def.preview);
+      const inlineTag = document.getElementById(isPlayer ? "playerPersonaTagInline" : "rivalPersonaTagInline");
+      if (inlineTag) inlineTag.textContent = def.tag;
+    }
+    function renderAvatarPicker(kind) {
+      const isPlayer = kind === "player";
+      const host = document.getElementById(isPlayer ? "playerAvatarList" : "rivalAvatarList");
+      host.innerHTML = "";
+      Object.entries(AVATARS).forEach(([id, item]) => {
+        const node = document.createElement("button");
+        const active = isPlayer ? state.playerAvatar === id : state.rival.avatar === id;
+        node.className = `avatar-card ${active ? "active" : ""}`;
+        node.type = "button";
+        const variant = isPlayer ? state.playerColor : state.rival.variant;
+        node.innerHTML = `<div class="pixel-avatar">${avatarSVGById(id, getVariant(id, variant).id)}</div><div class="avatar-name">${item.label}</div>`;
+        node.addEventListener("click", () => {
+          if (isPlayer) {
+            state.playerAvatar = id;
+            state.playerColor = getAvatarDef(id).variants[0].id;
+          } else {
+            state.rival.avatar = id;
+            state.rival.variant = getAvatarDef(id).variants[0].id;
+            state.rival.personality = getAvatarDef(id).persona;
+          }
+          renderAvatarPicker(kind); renderVariantPicker(kind); renderAvatarDetail(kind); renderOnboardingSteps(); updateDuplicateUI();
+        });
+        host.appendChild(node);
+      });
+    }
+    function renderVariantPicker(kind) {
+      const isPlayer = kind === "player";
+      const wrap = document.getElementById(isPlayer ? "playerVariantWrap" : "rivalVariantWrap");
+      wrap.classList.remove("hidden");
+      const host = document.getElementById(isPlayer ? "playerVariantList" : "rivalVariantList");
+      host.innerHTML = "";
+      const aid = isPlayer ? state.playerAvatar : state.rival.avatar;
+      const vid = isPlayer ? state.playerColor : state.rival.variant;
+      getAvatarDef(aid).variants.forEach((v) => {
+        const node = document.createElement("button");
+        node.type = "button";
+        node.className = `variant-chip ${vid === v.id ? "active" : ""}`;
+        node.innerHTML = `<span class="swatch" style="background:${v.p};"></span><span class="swatch" style="background:${v.s};"></span><span>${v.label}</span>`;
+        node.addEventListener("click", () => {
+          if (isPlayer) state.playerColor = v.id;
+          else state.rival.variant = v.id;
+          renderAvatarPicker(kind); renderVariantPicker(kind); renderAvatarDetail(kind); renderOnboardingSteps(); updateDuplicateUI();
+        });
+        host.appendChild(node);
+      });
+    }
+    function getRivalLine() {
+      const pool = LINES[state.rival.personality] || LINES.taunt;
+      const gap = state.userXp - state.rivalXp;
+      if (gap <= -20) return "你已经落后很多了，我会继续拉开差距。";
+      if (gap >= 20) return "你暂时领先，但我会慢慢追上来。";
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function renderTasks() {
+      const host = document.getElementById("taskList");
+      host.innerHTML = "";
+      state.tasks.forEach((task) => {
+        const cat = TASK_CATEGORY[task.category] || TASK_CATEGORY.other;
+        const item = document.createElement("div");
+        item.className = `task-item ${task.done ? "done" : ""}`;
+        item.innerHTML = `
+          <div><div class="task-text">${cat.icon} ${task.text}</div><div class="task-meta">${cat.label} · ${DIFFICULTY_MAP[task.xp] || "⭐"}</div></div>
+          <div class="task-xp">+${task.xp} XP</div>
+          <button class="pixel-btn ${task.done ? "" : "btn-success"}" data-action="done" data-id="${task.id}" ${task.done ? "disabled" : ""}>${task.done ? "已完成" : "完成 ✓"}</button>
+          <button class="pixel-btn btn-warn" data-action="delete" data-id="${task.id}">删除 ✕</button>`;
+        const doneBtn = item.querySelector('[data-action="done"]');
+        const delBtn = item.querySelector('[data-action="delete"]');
+        if (!task.done) doneBtn.addEventListener("click", () => completeTask(task.id));
+        delBtn.addEventListener("click", () => deleteTask(task.id));
+        host.appendChild(item);
+      });
+      renderStatusBar();
+    }
+    function animateGain(targetId) {
+      const el = document.getElementById(targetId);
+      el.classList.remove("xp-pop"); void el.offsetWidth; el.classList.add("xp-pop");
+    }
+    function showFloatingXp(amount) {
+      const host = document.getElementById("userXpNum");
+      const node = document.createElement("span");
+      node.className = "xp-gain-float";
+      node.textContent = `+${amount} XP`;
+      host.appendChild(node);
+      setTimeout(() => node.remove(), 1200);
+    }
+    function celebrateUser() {
+      const avatar = document.getElementById("userAvatar");
+      avatar.classList.remove("jump-celebrate");
+      void avatar.offsetWidth;
+      avatar.classList.add("jump-celebrate");
+      avatar.addEventListener("animationend", () => avatar.classList.remove("jump-celebrate"), { once: true });
+    }
+    function renderXP() {
+      state.rivalXp = Math.floor(state.rivalXpFloat);
+      const maxXp = Math.max(state.userXp, state.rivalXp, 100);
+      const userRate = (state.userXp / maxXp) * 100;
+      const rivalRate = (state.rivalXp / maxXp) * 100;
+      const userFill = document.getElementById("userXpFill");
+      const rivalFill = document.getElementById("rivalXpFill");
+      userFill.style.width = `${userRate}%`;
+      rivalFill.style.width = `${rivalRate}%`;
+      document.getElementById("userXpNum").textContent = `${state.userXp} XP`;
+      document.getElementById("rivalXpNum").textContent = `${state.rivalXp} XP`;
+      const rivalLead = state.rivalXp > state.userXp;
+      rivalFill.classList.toggle("danger", rivalLead);
+      rivalFill.classList.toggle("blink", rivalLead);
+    }
+    function renderRivalArea() {
+      document.getElementById("rivalAvatar").innerHTML = avatarSVGById(state.rival.avatar, state.rival.variant);
+      document.getElementById("rivalNameLabel").textContent = state.rival.name || "RIVAL";
+      const bubble = document.getElementById("rivalBubble");
+      if (bubble) bubble.textContent = getRivalLine();
+    }
+    function renderStatusBar() {
+      const finished = state.tasks.filter((t) => t.done).length;
+      const total = state.tasks.length;
+      document.getElementById("todayDateText").textContent = formatChineseDate();
+      document.getElementById("todayProgressText").textContent = `${finished} / ${total} 已完成`;
+      document.getElementById("gameDayText").textContent = `游戏第 ${gameDaysElapsed()} 天`;
+      document.getElementById("motivationBar").textContent = `「${state.motivationQuote || "今天也要赢过昨天的自己。"}」`;
+    }
+    function syncReadyPreview() {
+      const rp = document.getElementById("readyPlayerAvatar");
+      const rr = document.getElementById("readyRivalAvatar");
+      const rn = document.getElementById("readyRivalName");
+      if (rp) rp.innerHTML = avatarSVGById(state.playerAvatar, state.playerColor);
+      if (rr) rr.innerHTML = avatarSVGById(state.rival.avatar, state.rival.variant);
+      if (rn) rn.textContent = state.rival.name || "RIVAL";
+      updateDuplicateUI();
+    }
+    function renderOnboardingSteps() {
+      const step = Math.max(0, Math.min(2, state.onboardingStep || 0));
+      for (let i = 0; i <= 2; i++) {
+        const card = document.getElementById(`step${i}Card`);
+        if (!card) continue;
+        const active = i === step;
+        card.classList.toggle("hidden", !active);
+        if (active) {
+          card.classList.toggle("enter-from-right", slideDir > 0);
+          card.classList.toggle("enter-from-left", slideDir < 0);
+          requestAnimationFrame(() => card.classList.remove("enter-from-right", "enter-from-left"));
+        }
+      }
+      if (step === 2) syncReadyPreview();
+    }
+    function renderViews() {
+      const onboardingView = document.getElementById("onboardingView");
+      const dashboardView = document.getElementById("dashboardView");
+      onboardingView.classList.toggle("hidden", state.onboardingDone);
+      dashboardView.classList.toggle("hidden", !state.onboardingDone);
+      document.getElementById("btnOpenReport").classList.toggle("hidden", !state.onboardingDone);
+      if (!state.onboardingDone) {
+        state.onboardingStep = Math.max(0, Math.min(2, state.onboardingStep || 0));
+        document.getElementById("rivalNameInput").value = state.rival.name || "";
+        document.getElementById("strengthInput").value = state.rival.strength || 1.0;
+        document.getElementById("strengthLabel").textContent = `${Number(state.rival.strength || 1).toFixed(1)}x`;
+        document.getElementById("motivationInput").value = state.motivationQuote || "";
+        renderAvatarPicker("player"); renderVariantPicker("player"); renderAvatarDetail("player");
+        renderAvatarPicker("rival"); renderVariantPicker("rival"); renderAvatarDetail("rival");
+        syncReadyPreview();
+        if (!state.motivationQuote) setReadyQuote();
+        renderOnboardingSteps();
+      } else {
+        document.getElementById("userAvatar").innerHTML = avatarSVGById(state.playerAvatar, state.playerColor);
+        renderRivalArea(); renderStatusBar(); renderXP(); renderTasks();
+      }
+    }
+
+    function completeTask(taskId) {
+      const task = state.tasks.find((t) => t.id === taskId);
+      if (!task || task.done) return;
+      task.done = true;
+      state.userXp += task.xp;
+      renderTasks();
+      renderXP();
+      celebrateUser();
+      showFloatingXp(task.xp);
+      animateGain("userXpNum");
+      renderRivalArea();
+      saveState();
+    }
+    function deleteTask(taskId) {
+      const idx = state.tasks.findIndex((t) => t.id === taskId);
+      if (idx < 0) return;
+      const task = state.tasks[idx];
+      if (task.done) state.userXp = Math.max(0, state.userXp - task.xp);
+      state.tasks.splice(idx, 1);
+      applyOfflineRivalGrowth();
+      renderTasks(); renderXP(); saveState();
+    }
+
+    function openTaskModal() {
+      document.getElementById("taskModalOverlay").classList.remove("hidden");
+      document.getElementById("taskNameInput").focus();
+    }
+    function closeTaskModal() {
+      document.getElementById("taskModalOverlay").classList.add("hidden");
+    }
+    function saveTaskFromModal() {
+      const name = document.getElementById("taskNameInput").value.trim();
+      const xp = Number(document.getElementById("taskDifficultyInput").value || 30);
+      const category = document.getElementById("taskCategoryInput").value;
+      if (!name) return;
+      state.tasks.push({ id: genId("task"), text: name, xp, done: false, category });
+      document.getElementById("taskNameInput").value = "";
+      applyOfflineRivalGrowth();
+      renderTasks(); renderXP(); saveState(); closeTaskModal();
+    }
+
+    function normalizeTodoLine(line) {
+      const trimmed = line.trim();
+      if (!trimmed) return "";
+      const withoutPrefix = trimmed.replace(/^\s*(?:[-*•]+|\d+[.)]|[一二三四五六七八九十]+[、.)])\s*/, "").trim();
+      if (!withoutPrefix) return "";
+      if (!/[A-Za-z0-9\u4e00-\u9fa5]/.test(withoutPrefix)) return "";
+      return withoutPrefix;
+    }
+    function toggleImportPanel() {
+      const body = document.getElementById("importBody");
+      const btn = document.getElementById("btnToggleImport");
+      const hidden = body.classList.contains("hidden");
+      body.classList.toggle("hidden", !hidden);
+      btn.textContent = hidden ? "收起" : "展开";
+    }
+    function renderImportPreview() {
+      const host = document.getElementById("importPreviewList");
+      const bar = document.getElementById("importConfirmBar");
+      host.innerHTML = "";
+      bar.classList.toggle("hidden", importDrafts.length === 0);
+      importDrafts.forEach((d, i) => {
+        const item = document.createElement("div");
+        item.className = "import-preview-item";
+        item.innerHTML = `
+          <div>${d.text}</div>
+          <select data-kind="xp" data-idx="${i}">
+            <option value="30" ${d.xp===30?"selected":""}>⭐ 30</option>
+            <option value="60" ${d.xp===60?"selected":""}>⭐⭐ 60</option>
+            <option value="100" ${d.xp===100?"selected":""}>⭐⭐⭐ 100</option>
+          </select>
+          <select data-kind="cat" data-idx="${i}">
+            <option value="study" ${d.category==="study"?"selected":""}>学习📚</option>
+            <option value="fitness" ${d.category==="fitness"?"selected":""}>健身💪</option>
+            <option value="health" ${d.category==="health"?"selected":""}>健康🥗</option>
+            <option value="work" ${d.category==="work"?"selected":""}>工作💼</option>
+            <option value="other" ${d.category==="other"?"selected":""}>其他⚡</option>
+          </select>`;
+        host.appendChild(item);
+      });
+      host.querySelectorAll("select").forEach((s) => {
+        s.addEventListener("change", (e) => {
+          const idx = Number(e.target.dataset.idx);
+          if (e.target.dataset.kind === "xp") importDrafts[idx].xp = Number(e.target.value);
+          if (e.target.dataset.kind === "cat") importDrafts[idx].category = e.target.value;
+        });
+      });
+    }
+    function parseImportText() {
+      const raw = document.getElementById("todoPasteInput").value || "";
+      importDrafts = raw.split(/\r?\n/).map(normalizeTodoLine).filter(Boolean).map((text) => ({ text, xp: 30, category: "other" }));
+      renderImportPreview();
+    }
+    function confirmImportTasks() {
+      if (!importDrafts.length) return;
+      importDrafts.forEach((d) => state.tasks.push({ id: genId("task"), text: d.text, xp: d.xp, category: d.category, done: false }));
+      importDrafts = [];
+      document.getElementById("todoPasteInput").value = "";
+      renderImportPreview();
+      applyOfflineRivalGrowth();
+      renderTasks();
+      renderXP();
+      saveState();
+    }
+
+    function openReport() {
+      const userGain = state.userXp - state.daily.startUserXp;
+      const rivalGain = Math.floor(state.rivalXpFloat - state.daily.startRivalXp);
+      document.getElementById("reportUserGain").textContent = `+${userGain} XP`;
+      document.getElementById("reportRivalGain").textContent = `+${rivalGain} XP`;
+      let result = "平局：双方势均力敌，明天继续决斗。";
+      if (userGain > rivalGain) result = "你赢了今天的战斗！继续保持执行力。";
+      if (userGain < rivalGain) result = "今天你落后了，对手趁你停下时变强了。";
+      document.getElementById("reportResult").textContent = result;
+      document.getElementById("reportOverlay").classList.remove("hidden");
+    }
+    function closeReport() { document.getElementById("reportOverlay").classList.add("hidden"); }
+    function openArchive() {
+      document.getElementById("archivePlayerAv").innerHTML = avatarSVGById(state.playerAvatar, state.playerColor);
+      document.getElementById("archiveRivalAv").innerHTML = avatarSVGById(state.rival.avatar, state.rival.variant);
+      document.getElementById("archiveRivalName").textContent = state.rival.name || "RIVAL";
+      document.getElementById("archiveXpLine").textContent = `你 ${state.userXp} XP · 对手 ${Math.floor(state.rivalXpFloat || state.rivalXp || 0)} XP`;
+      document.getElementById("archiveDays").textContent = `${gameDaysElapsed()} 天`;
+      document.getElementById("archiveOverlay").classList.remove("hidden");
+    }
+    function closeArchive() { document.getElementById("archiveOverlay").classList.add("hidden"); }
+    function newGameConfirm() {
+      if (!window.confirm("确定新建存档？当前进度将清空。")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = loadState();
+      normalizeLegacyState();
+      saveState();
+      closeArchive();
+      renderViews();
+    }
+    function startDashboard() {
+      const name = document.getElementById("rivalNameInput").value.trim();
+      const strength = Number(document.getElementById("strengthInput").value || 1.0);
+      const quote = document.getElementById("motivationInput").value.trim();
+      state.rival.name = name || "NOVA";
+      state.rival.personality = getAvatarDef(state.rival.avatar).persona;
+      state.rival.strength = strength;
+      state.motivationQuote = quote || state.motivationQuote || "今天也要赢过昨天的自己。";
+      state.onboardingDone = true;
+      state.lastRivalTickAt = Date.now();
+      applyOfflineRivalGrowth();
+      saveState();
+      renderViews();
+    }
+    function resetAll() {
+      if (!window.confirm("确认重置全部数据？这会清空 Onboarding 和 XP 记录。")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = loadState();
+      normalizeLegacyState();
+      ensureDailyReset();
+      saveState();
+      renderViews();
+    }
+
+    function drawPixelCloud(ctx, c) {
+      const s = c.size;
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.fillRect(c.x, c.y, s, s * 0.5);
+      ctx.fillRect(c.x + s * 0.3, c.y - s * 0.25, s * 0.9, s * 0.55);
+      ctx.fillRect(c.x + s * 0.7, c.y, s * 0.7, s * 0.45);
+    }
+    function drawBackground() {
+      const canvas = document.getElementById("bgCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width = window.innerWidth;
+      const h = canvas.height = window.innerHeight;
+      if (!clouds.length) {
+        for (let i = 0; i < 3; i++) clouds.push({ x: Math.random() * w, y: h * (0.12 + i * 0.09), speed: 0.05 + Math.random() * 0.1, size: 24 + Math.random() * 22 });
+      }
+      const sky = ctx.createLinearGradient(0, 0, 0, h);
+      sky.addColorStop(0, "#87CEEB");
+      sky.addColorStop(1, "#E0F4FF");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, h);
+      bgPhase += bgSpeed;
+      const mOff = (bgPhase * 0.1) % 240;
+      const fOff = (bgPhase * 0.3) % 180;
+      const tOff = (bgPhase * 0.6) % 120;
+      ctx.fillStyle = "#B8C5D6";
+      for (let x = -240; x < w + 240; x += 120) { const sx = x - mOff; ctx.fillRect(sx, h * 0.5, 120, 22); ctx.fillRect(sx + 20, h * 0.45, 80, 50); }
+      ctx.fillStyle = "#2D5A1B";
+      for (let x = -180; x < w + 180; x += 70) { ctx.fillRect(x - fOff, h * 0.62, 44, h * 0.25); }
+      ctx.fillStyle = "#1A3A0F";
+      for (let x = -120; x < w + 120; x += 80) { const sx = x - tOff; ctx.fillRect(sx + 26, h * 0.66, 14, h * 0.34); ctx.fillRect(sx, h * 0.66, 64, 26); }
+      clouds.forEach((c) => { c.x -= c.speed; if (c.x < -120) c.x = w + 40; drawPixelCloud(ctx, c); });
+      requestAnimationFrame(drawBackground);
+    }
+    function stopMusicEngine() {
+      if (bgAudio) {
+        bgAudio.pause();
+        bgAudio.currentTime = 0;
+      }
+      musicPlaying = false;
+      document.getElementById("projectorPlayer").classList.remove("playing");
+      document.getElementById("projectorLabel").textContent = "播放 Lo-Fi";
+    }
+    function startMusicEngine() {
+      stopMusicEngine();
+      if (!bgAudio) {
+        bgAudio = new Audio(encodeURI("坂本龍一 - Merry Christmas Mr. Lawrence.mp3"));
+        bgAudio.loop = true;
+        bgAudio.volume = 0.45;
+      }
+      bgAudio.play().then(() => {
+        musicPlaying = true;
+        document.getElementById("projectorPlayer").classList.add("playing");
+        document.getElementById("projectorLabel").textContent = "暂停 Lo-Fi";
+      }).catch(() => {
+        document.getElementById("projectorLabel").textContent = "音频不可用";
+      });
+    }
+
+    function bindEvents() {
+      document.getElementById("btnStart").addEventListener("click", startDashboard);
+      document.getElementById("btnOpenReport").addEventListener("click", openReport);
+      document.getElementById("btnCloseReport").addEventListener("click", closeReport);
+      document.getElementById("btnArchive").addEventListener("click", openArchive);
+      document.getElementById("btnArchiveContinue").addEventListener("click", closeArchive);
+      document.getElementById("btnArchiveNew").addEventListener("click", newGameConfirm);
+      document.getElementById("btnManualSave").addEventListener("click", () => {
+        saveState();
+        const b = document.getElementById("btnManualSave");
+        const old = b.textContent;
+        b.textContent = "✓ 已保存";
+        setTimeout(() => { b.textContent = old; }, 1500);
+      });
+      document.getElementById("btnOpenSettings").addEventListener("click", () => document.getElementById("settingsOverlay").classList.remove("hidden"));
+      document.getElementById("btnCloseSettings").addEventListener("click", () => document.getElementById("settingsOverlay").classList.add("hidden"));
+      document.getElementById("settingsOverlay").addEventListener("click", (e) => { if (e.target.id === "settingsOverlay") document.getElementById("settingsOverlay").classList.add("hidden"); });
+      document.getElementById("btnBackToOnboarding").addEventListener("click", () => {
+        if (!window.confirm("确定返回 Onboarding 重新设置角色？")) return;
+        state.onboardingDone = false;
+        state.onboardingStep = 0;
+        saveState();
+        document.getElementById("settingsOverlay").classList.add("hidden");
+        renderViews();
+      });
+      document.getElementById("btnResetAllArchive").addEventListener("click", () => {
+        if (!window.confirm("确定重置全部存档？")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        state = loadState();
+        normalizeLegacyState();
+        saveState();
+        document.getElementById("settingsOverlay").classList.add("hidden");
+        renderViews();
+      });
+      document.getElementById("btnAddTask").addEventListener("click", () => { ensureGameStartTime(); openTaskModal(); });
+      document.getElementById("btnCancelTask").addEventListener("click", closeTaskModal);
+      document.getElementById("btnSaveTask").addEventListener("click", saveTaskFromModal);
+      document.getElementById("btnToggleImport").addEventListener("click", toggleImportPanel);
+      document.getElementById("btnParseImport").addEventListener("click", parseImportText);
+      document.getElementById("btnConfirmImport").addEventListener("click", confirmImportTasks);
+      document.getElementById("taskModalOverlay").addEventListener("click", (e) => { if (e.target.id === "taskModalOverlay") closeTaskModal(); });
+      document.getElementById("reportOverlay").addEventListener("click", (e) => { if (e.target.id === "reportOverlay") closeReport(); });
+      document.getElementById("archiveOverlay").addEventListener("click", (e) => { if (e.target.id === "archiveOverlay") closeArchive(); });
+      document.getElementById("rivalNameInput").addEventListener("input", () => {});
+      document.getElementById("strengthInput").addEventListener("input", (e) => {
+        document.getElementById("strengthLabel").textContent = `${Number(e.target.value).toFixed(1)}x`;
+        state.rival.strengthTouched = true;
+      });
+      const projector = document.getElementById("projectorPlayer");
+      projector.addEventListener("click", async () => {
+        if (musicPlaying) stopMusicEngine(); else startMusicEngine();
+      });
+      document.getElementById("btnStep0Next").addEventListener("click", () => { slideDir = 1; state.onboardingStep = 1; renderOnboardingSteps(); });
+      document.getElementById("btnStep1Prev").addEventListener("click", () => { slideDir = -1; state.onboardingStep = 0; renderOnboardingSteps(); });
+      document.getElementById("btnStep1Next").addEventListener("click", () => {
+        const rivalName = document.getElementById("rivalNameInput").value.trim();
+        const rivalStrength = Number(document.getElementById("strengthInput").value || 1.0);
+        state.rival.name = rivalName || "NOVA";
+        state.rival.strength = rivalStrength;
+        slideDir = 1;
+        state.onboardingStep = 2;
+        setReadyQuote();
+        renderOnboardingSteps();
+      });
+      document.getElementById("btnStep2Prev").addEventListener("click", () => { slideDir = -1; state.onboardingStep = 1; renderOnboardingSteps(); });
+    }
+    function startRivalTicker() {
+      setInterval(() => {
+        if (!state.onboardingDone) return;
+        const progressMins = getDayProgressMinutes();
+        if (progressMins <= 0 || progressMins >= ACTIVE_MINUTES) { applyOfflineRivalGrowth(); renderXP(); saveState(); return; }
+        const dailyTarget = calcTaskTotalXp(state.tasks) * Number(state.rival.strength || 1.0);
+        state.rivalXpFloat += dailyTarget / ACTIVE_MINUTES;
+        state.lastRivalTickAt = Date.now();
+        applyOfflineRivalGrowth();
+        renderXP();
+        animateGain("rivalXpNum");
+        renderRivalArea();
+        saveState();
+      }, RIVAL_TICK_MS);
+    }
+    function init() {
+      try {
+        normalizeLegacyState();
+        ensureDailyReset();
+        applyOfflineRivalGrowth();
+        state.onboardingDone = false;
+        state.onboardingStep = 0;
+        bindEvents();
+        renderViews();
+        saveState();
+        startRivalTicker();
+        requestAnimationFrame(drawBackground);
+      } catch (e) {
+        localStorage.removeItem(STORAGE_KEY);
+        state = loadState();
+        normalizeLegacyState();
+        bindEvents();
+        renderViews();
+        saveState();
+        startRivalTicker();
+        requestAnimationFrame(drawBackground);
+      }
+    }
+    init();
+  </script>
+</body>
+</html>
